@@ -1,0 +1,9 @@
+# Ignore node_modules directories
+**/node_modules
+
+# Ignore backend environment file
+backend/.env
+
+# Ignore frontend build files
+frontend/dist
+frontend/.env*
