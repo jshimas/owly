@@ -33,10 +33,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: 0,
       },
-      role_fk: {
+      role: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: null,
+        field: "role_fk",
       },
       password: {
         type: DataTypes.STRING,
@@ -45,7 +46,20 @@ module.exports = (sequelize, DataTypes) => {
           min: 8,
         },
       },
-      school_fk: DataTypes.INTEGER,
+      paswordConfirm: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          isEqualToPassword(value) {
+            if (value !== this.password)
+              throw new Error("Passwords do not match.");
+          },
+        },
+      },
+      school: {
+        type: DataTypes.INTEGER,
+        field: "school_fk",
+      },
     },
     {
       sequelize,
@@ -55,5 +69,11 @@ module.exports = (sequelize, DataTypes) => {
       updatedAt: false,
     }
   );
+
+  User.beforeCreate(async (user) => {
+    user.password = await bcrypt.hash(user.password, 12);
+    user.passwordConfirm = undefined;
+  });
+
   return User;
 };
