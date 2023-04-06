@@ -1,5 +1,5 @@
-"use strict";
 const { Model } = require("sequelize");
+const bcrypt = require("bcrypt");
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -35,7 +35,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       role: {
         type: DataTypes.INTEGER,
-        allowNull: false,
         defaultValue: null,
         field: "role_fk",
       },
@@ -46,8 +45,8 @@ module.exports = (sequelize, DataTypes) => {
           min: 8,
         },
       },
-      paswordConfirm: {
-        type: DataTypes.STRING,
+      passwordConfirm: {
+        type: DataTypes.VIRTUAL,
         allowNull: false,
         validate: {
           isEqualToPassword(value) {

@@ -1,17 +1,17 @@
-const jwt = reuqire("jsonwetoken");
-const { User } = require("../models");
+const jwt = require("jsonwebtoken");
+const { User, School } = require("../models");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 
-const signToken = (id) => {
+const signToken = (id) =>
   jwt.sign({ id: id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
-    algorithm: "RS256",
   });
-};
 
-const createSendToken = (user, statusCode, res) => {
-  const token = signToken(user.id);
+const createSendToken = (userId, statusCode, res) => {
+  const token = signToken(userId);
+
+  console.log("token: ", token);
 
   res.cookie("jwt", token, {
     expires: new Date(
@@ -22,12 +22,10 @@ const createSendToken = (user, statusCode, res) => {
     secure: true,
   });
 
-  res.status(statusCode).json({
-    userId: user.id,
-  });
+  res.status(statusCode).json({ userId });
 };
 
-const signup = catchAsync(async (req, res, next) => {
+exports.signup = catchAsync(async (req, res, next) => {
   const existingUser = await User.findOne({ where: { email: req.body.email } });
   const existingSchool = await School.findByPk(req.body.school);
 
