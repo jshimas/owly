@@ -4,13 +4,9 @@ module.exports = (sequelize, DataTypes) => {
   class Invitation extends Model {
     /**
      * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
      */
-    static associate({ User, Meeting }) {
-      this.belongsTo(User, { foreignKey: "user_sender_fk" });
-      this.belongsTo(User, { foreignKey: "user_participant_fk" });
-      this.belongsTo(Meeting, { foreignKey: "meeting_fk" });
+    static associate({ User }) {
+      this.belongsTo(User, { foreignKey: "user_sender_fk", as: "inviters" });
     }
   }
   Invitation.init(
@@ -30,11 +26,19 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: "user_participant_fk",
+        references: {
+          model: "User",
+          key: "id",
+        },
       },
       meeting: {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: "meeting_fk",
+        references: {
+          model: "Meeting",
+          key: "id",
+        },
       },
     },
     {

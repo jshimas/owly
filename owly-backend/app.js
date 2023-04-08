@@ -3,6 +3,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const globalErrorHandler = require("./controllers/errorController");
 const userRoutes = require("./routes/userRoutes");
+const meetingRoutes = require("./routes/meetingRoutes");
 
 require("dotenv").config();
 const { sequelize } = require("./models");
@@ -16,6 +17,7 @@ app.use(cookieParser());
 
 // ROUTES
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/meetings", meetingRoutes);
 // app.use("/api/v1/school", schoolRouter);
 
 app.all("*", (req, res, next) => {

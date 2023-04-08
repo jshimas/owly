@@ -7,11 +7,18 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ Resource }) {
+    static associate({ Resource, User, Invitation }) {
       this.hasMany(Resource, { foreignKey: "meeting_fk" });
+
+      this.belongsToMany(User, {
+        through: "Invitation",
+        as: "participants",
+        foreignKey: "meeting_fk",
+        otherKey: "user_participant_fk",
+      });
     }
   }
-  meeting.init(
+  Meeting.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -21,11 +28,13 @@ module.exports = (sequelize, DataTypes) => {
       startDate: {
         type: DataTypes.DATE,
         allowNull: false,
+        field: "start_date",
       },
       isFinished: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+        field: "is_finished",
       },
       subject: {
         type: DataTypes.STRING,
@@ -41,5 +50,5 @@ module.exports = (sequelize, DataTypes) => {
       createdAt: false,
     }
   );
-  return meeting;
+  return Meeting;
 };

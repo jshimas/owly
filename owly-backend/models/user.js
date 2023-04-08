@@ -7,9 +7,18 @@ module.exports = (sequelize, DataTypes) => {
       return await bcrypt.compare(candidatePassword, this.password);
     }
 
-    static associate({ Invitation }) {
-      this.hasMany(Invitation, { foreignKey: "user_sender_fk" });
-      this.hasMany(Invitation, { foreignKey: "user_participant_fk" });
+    static associate({ Meeting, Invitation }) {
+      this.belongsToMany(Meeting, {
+        through: "Invitation",
+        as: "meetings",
+        foreignKey: "user_participant_fk",
+        otherKey: "meeting_fk",
+      });
+
+      this.hasMany(Invitation, {
+        foreignKey: "user_sender_fk",
+        as: "invitations",
+      });
     }
   }
   User.init(
