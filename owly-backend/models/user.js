@@ -3,6 +3,10 @@ const bcrypt = require("bcrypt");
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
+    async isCorrectPassword(candidatePassword) {
+      return await bcrypt.compare(candidatePassword, this.password);
+    }
+
     static associate(models) {
       // define association here
     }
