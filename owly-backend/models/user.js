@@ -13,14 +13,18 @@ module.exports = (sequelize, DataTypes) => {
           model: "Invitation",
           unique: false,
         },
-        // as: "meetings",
+        as: "meetings",
         foreignKey: "user_participant_fk",
         otherKey: "meeting_fk",
       });
 
       this.hasMany(Invitation, {
         foreignKey: "user_sender_fk",
-        // as: "invitations",
+        // as: "invitation",
+      });
+      this.hasMany(Invitation, {
+        foreignKey: "user_participant_fk",
+        // as: "participation",
       });
     }
   }

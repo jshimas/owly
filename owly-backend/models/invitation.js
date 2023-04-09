@@ -6,7 +6,11 @@ module.exports = (sequelize, DataTypes) => {
      * Helper method for defining associations.
      */
     static associate({ User, Meeting }) {
-      this.belongsTo(User, { foreignKey: "user_sender_fk" });
+      this.belongsTo(User, { foreignKey: "user_sender_fk", as: "inviter" });
+      this.belongsTo(User, {
+        foreignKey: "user_participant_fk",
+        as: "participant",
+      });
       this.belongsTo(Meeting, { foreignKey: "meeting_fk" });
     }
   }
@@ -22,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: "user_sender_fk",
+        references: {
+          model: "User",
+          key: "id",
+        },
       },
       userParticipant: {
         type: DataTypes.INTEGER,
