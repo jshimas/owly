@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "resource_type",
       updatedAt: false,
       createdAt: false,
+      name: { singular: "resourceType", plural: "resourceTypes" },
     }
   );
   return ResourceType;

@@ -5,8 +5,9 @@ module.exports = (sequelize, DataTypes) => {
     /**
      * Helper method for defining associations.
      */
-    static associate({ User }) {
-      this.belongsTo(User, { foreignKey: "user_sender_fk", as: "inviters" });
+    static associate({ User, Meeting }) {
+      this.belongsTo(User, { foreignKey: "user_sender_fk" });
+      this.belongsTo(Meeting, { foreignKey: "meeting_fk" });
     }
   }
   Invitation.init(
@@ -47,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "invitation",
       updatedAt: false,
       createdAt: false,
+      name: { singular: "invitation", plural: "invitations" },
     }
   );
   return Invitation;

@@ -9,15 +9,18 @@ module.exports = (sequelize, DataTypes) => {
 
     static associate({ Meeting, Invitation }) {
       this.belongsToMany(Meeting, {
-        through: "Invitation",
-        as: "meetings",
+        through: {
+          model: "Invitation",
+          unique: false,
+        },
+        // as: "meetings",
         foreignKey: "user_participant_fk",
         otherKey: "meeting_fk",
       });
 
       this.hasMany(Invitation, {
         foreignKey: "user_sender_fk",
-        as: "invitations",
+        // as: "invitations",
       });
     }
   }
@@ -80,12 +83,20 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "User",
       createdAt: false,
       updatedAt: false,
+      name: { singular: "user", plural: "users" },
     }
   );
 
   User.beforeCreate(async (user) => {
     user.password = await bcrypt.hash(user.password, 12);
     user.passwordConfirm = undefined;
+  });
+
+  User.beforeFind((options) => {
+    if (!options.attributes) {
+      options.attributes = {};
+    }
+    options.attributes.exclude = ["password"];
   });
 
   return User;

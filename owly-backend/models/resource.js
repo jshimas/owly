@@ -21,19 +21,19 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      event: {
+      eventId: {
         type: DataTypes.INTEGER,
         field: "event_fk",
       },
-      activity: {
+      activityId: {
         type: DataTypes.INTEGER,
         field: "activity_fk",
       },
-      meeting: {
+      meetingId: {
         type: DataTypes.INTEGER,
         field: "meeting_fk",
       },
-      type: {
+      typeId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: "type_fk",
@@ -45,6 +45,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "resource",
       createdAt: false,
       updatedAt: false,
+      name: { singular: "resource", plural: "resources" },
     }
   );
   return Resource;

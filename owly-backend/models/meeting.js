@@ -9,10 +9,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({ Resource, User, Invitation }) {
       this.hasMany(Resource, { foreignKey: "meeting_fk" });
+      this.hasMany(Invitation, { foreignKey: "meeting_fk" });
 
       this.belongsToMany(User, {
-        through: "Invitation",
-        as: "participants",
+        through: {
+          model: "Invitation",
+          unique: false,
+        },
+        as: "members",
         foreignKey: "meeting_fk",
         otherKey: "user_participant_fk",
       });
