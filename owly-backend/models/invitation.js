@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
-      meeting: {
+      meetingId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: "meeting_fk",
