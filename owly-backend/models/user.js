@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       return await bcrypt.compare(candidatePassword, this.password);
     }
 
-    static associate({ Meeting, Invitation }) {
+    static associate({ Meeting, Invitation, UserRole }) {
       this.belongsToMany(Meeting, {
         through: {
           model: "Invitation",
@@ -18,14 +18,9 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: "meeting_fk",
       });
 
-      this.hasMany(Invitation, {
-        foreignKey: "user_sender_fk",
-        // as: "invitation",
-      });
-      this.hasMany(Invitation, {
-        foreignKey: "user_participant_fk",
-        // as: "participation",
-      });
+      this.hasMany(Invitation, { foreignKey: "user_sender_fk" });
+      this.hasMany(Invitation, { foreignKey: "user_participant_fk" });
+      this.belongsTo(UserRole);
     }
   }
   User.init(
@@ -54,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: 0,
       },
-      role: {
+      roleId: {
         type: DataTypes.INTEGER,
         defaultValue: null,
         field: "role_fk",
@@ -96,12 +91,12 @@ module.exports = (sequelize, DataTypes) => {
     user.passwordConfirm = undefined;
   });
 
-  User.beforeFind((options) => {
-    if (!options.attributes) {
-      options.attributes = {};
-    }
-    options.attributes.exclude = ["password"];
-  });
+  // User.beforeFind((options) => {
+  //   if (!options.attributes) {
+  //     options.attributes = {};
+  //   }
+  //   options.attributes.exclude = ["password"];
+  // });
 
   return User;
 };

@@ -7,7 +7,26 @@ const router = express.Router();
 
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);
-router.route("/").get(userController.getAllUser);
-router.get("/:id/meetings", meetingController.getAllMeetings);
+
+// All further routes are protected from unauthorized use
+router.use(authController.protect);
+
+router.get(
+  "/:id/meetings",
+  authController.restrictTo("coordinator", "admin"),
+  meetingController.getAllMeetings
+);
+
+router.post(
+  "/",
+  authController.restrictTo("coordinator", "admin"),
+  meetingController.createMeeting
+);
+
+router.get(
+  "/",
+  authController.restrictTo(["admin"]),
+  userController.getAllUser
+);
 
 module.exports = router;

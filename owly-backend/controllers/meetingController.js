@@ -12,7 +12,7 @@ exports.getMeeting = catchAsync(async (req, res, next) => {
       {
         model: User,
         as: "members",
-        attributes: ["id", "firstname", "lastname", "email", "role"],
+        attributes: ["id", "firstname", "lastname", "email", "roleId"],
         through: {
           attributes: ["id", "isAccepted"],
           as: "invitation",
@@ -67,28 +67,30 @@ exports.getAllMeetings = catchAsync(async (req, res, next) => {
 
 exports.createMeeting = catchAsync(async (req, res, next) => {
   const { meeting } = req.body;
+  console.log(req.user);
+  console.log(meeting);
 
-  const currentDate = new Date();
-  if (new Date(meeting.startDate) < currentDate) {
-    return next(new AppError("The startDate should be in the future", 400));
-  }
+  // const currentDate = new Date();
+  // if (new Date(meeting.startDate) < currentDate) {
+  //   return next(new AppError("The startDate should be in the future", 400));
+  // }
 
-  const newMeeting = await Meeting.create(meeting);
+  // const newMeeting = await Meeting.create(meeting);
 
-  Promise.all(
-    meeting.participants.map(async (participantId) => {
-      const existingUser = await User.findByPk(participantId);
+  // Promise.all(
+  //   meeting.participants.map(async (participantId) => {
+  //     const existingUser = await User.findByPk(participantId);
 
-      if (!existingUser)
-        return new AppError(`The user with ID ${participantId} does not exist`);
+  //     if (!existingUser)
+  //       return new AppError(`The user with ID ${participantId} does not exist`);
 
-      await Invitation.create({
-        userSender: req.user.id,
-        userParticipant: participantId,
-        meetingId: newMeeting.id,
-      });
-    })
-  );
+  //     await Invitation.create({
+  //       userSender: req.user.id,
+  //       userParticipant: participantId,
+  //       meetingId: newMeeting.id,
+  //     });
+  //   })
+  // );
 
   res.status(201).json({ message: "Meeting was successfully created" });
 });
