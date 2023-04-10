@@ -23,10 +23,6 @@ router.post(
   meetingController.createMeeting
 );
 
-router.get(
-  "/",
-  authController.restrictTo(["admin"]),
-  userController.getAllUser
-);
+router.get("/", authController.restrictTo("admin"), userController.getAllUser);
 
 module.exports = router;

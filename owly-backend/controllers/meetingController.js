@@ -1,4 +1,4 @@
-const { Meeting, User, Resource, Invitation } = require("../models");
+const { sequelize, Meeting, User, Resource, Invitation } = require("../models");
 const { Op } = require("sequelize");
 
 const catchAsync = require("../utils/catchAsync");
@@ -67,30 +67,57 @@ exports.getAllMeetings = catchAsync(async (req, res, next) => {
 
 exports.createMeeting = catchAsync(async (req, res, next) => {
   const { meeting } = req.body;
-  console.log(req.user);
-  console.log(meeting);
 
-  // const currentDate = new Date();
-  // if (new Date(meeting.startDate) < currentDate) {
-  //   return next(new AppError("The startDate should be in the future", 400));
-  // }
+  const currentDate = new Date();
+  if (new Date(meeting.startDate) < currentDate) {
+    return next(new AppError("The startDate should be in the future", 400));
+  }
 
-  // const newMeeting = await Meeting.create(meeting);
+  const { membersIds } = meeting;
 
-  // Promise.all(
-  //   meeting.participants.map(async (participantId) => {
-  //     const existingUser = await User.findByPk(participantId);
+  // Checking if all the users exists
+  const existingUsers = await User.findAll({
+    where: {
+      id: membersIds,
+    },
+  });
+  const existingUserIds = existingUsers.map((user) => user.id);
+  const invalidUserIds = membersIds.filter(
+    (id) => !existingUserIds.includes(id)
+  );
+  if (invalidUserIds.length > 0) {
+    return next(
+      new AppError(
+        `Following users with ids were not found: ${invalidUserIds.join(", ")}`,
+        404
+      )
+    );
+  }
 
-  //     if (!existingUser)
-  //       return new AppError(`The user with ID ${participantId} does not exist`);
+  const newMeeting = await sequelize.transaction(async (t) => {
+    const createdMeeting = await Meeting.create(meeting, { transaction: t });
 
-  //     await Invitation.create({
-  //       userSender: req.user.id,
-  //       userParticipant: participantId,
-  //       meetingId: newMeeting.id,
-  //     });
-  //   })
-  // );
+    if (!membersIds.includes(req.user.id)) membersIds.push(req.user.id);
 
-  res.status(201).json({ message: "Meeting was successfully created" });
+    await Promise.all(
+      membersIds.map(async (memberId) => {
+        await Invitation.create(
+          {
+            userSender: req.user.id,
+            userParticipant: memberId,
+            meetingId: createdMeeting.id,
+            isAccepted: req.user.id === memberId ? true : null,
+          },
+          { transaction: t }
+        );
+      })
+    );
+
+    return createdMeeting;
+  });
+
+  res.status(201).json({
+    message: "Meeting was successfully created",
+    meetingId: newMeeting.id,
+  });
 });
