@@ -1,8 +1,30 @@
 const { sequelize, Meeting, User, Resource, Invitation } = require("../models");
 const { Op } = require("sequelize");
-
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
+const multer = require("multer");
+const path = require("path");
+const deleteFilesThatStartsWith = require("../utils/deleteFilesThatStartWith");
+
+// Define the storage and file limits
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.resolve("public/files/"));
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      `meeting-${req.params.meetingId}-${Date.now()}-${file.originalname}`
+    );
+  },
+});
+
+const limits = {
+  fileSize: 1024 * 1024 * 5, // 5MB
+};
+
+// Create the Multer middleware instance
+exports.uploadFiles = multer({ storage, limits }).array("files");
 
 exports.getMeeting = catchAsync(async (req, res, next) => {
   const { meetingId } = req.params;
@@ -65,53 +87,58 @@ exports.getAllMeetings = catchAsync(async (req, res, next) => {
   res.status(200).json({ meetings });
 });
 
-exports.createMeeting = catchAsync(async (req, res, next) => {
-  const { meeting } = req.body;
+exports.meetingBodyValidation = catchAsync(async (req, res, next) => {
+  const meeting = req.body;
+  const { membersIds } = meeting;
 
   const currentDate = new Date();
   if (new Date(meeting.startDate) < currentDate) {
     return next(new AppError("The startDate should be in the future", 400));
   }
 
-  const { membersIds } = meeting;
-
   // Checking if all the users exists
-  const existingUsers = await User.findAll({
-    where: {
-      id: membersIds,
-    },
-  });
-  const existingUserIds = existingUsers.map((user) => user.id);
-  const invalidUserIds = membersIds.filter(
-    (id) => !existingUserIds.includes(id)
-  );
-  if (invalidUserIds.length > 0) {
-    return next(
-      new AppError(
-        `Following users with ids were not found: ${invalidUserIds.join(", ")}`,
-        404
-      )
+  if (membersIds && membersIds.length > 0) {
+    const existingUsers = await User.findAll({
+      where: {
+        id: membersIds,
+      },
+    });
+    const existingUserIds = existingUsers.map((user) => user.id);
+    const invalidUserIds = membersIds.filter(
+      (id) => !existingUserIds.includes(id)
     );
+    if (invalidUserIds.length > 0) {
+      return next(
+        new AppError(
+          `Following users with ids were not found: ${invalidUserIds.join(
+            ", "
+          )}`,
+          404
+        )
+      );
+    }
   }
+
+  next();
+});
+
+exports.createMeeting = catchAsync(async (req, res, next) => {
+  const meeting = req.body;
+  const { membersIds } = meeting;
 
   const newMeeting = await sequelize.transaction(async (t) => {
     const createdMeeting = await Meeting.create(meeting, { transaction: t });
 
     if (!membersIds.includes(req.user.id)) membersIds.push(req.user.id);
 
-    await Promise.all(
-      membersIds.map(async (memberId) => {
-        await Invitation.create(
-          {
-            userSender: req.user.id,
-            userParticipant: memberId,
-            meetingId: createdMeeting.id,
-            isAccepted: req.user.id === memberId ? true : null,
-          },
-          { transaction: t }
-        );
-      })
-    );
+    const invitations = membersIds.map((memberId) => ({
+      userSender: req.user.id,
+      userParticipant: memberId,
+      meetingId: createdMeeting.id,
+      isAccepted: req.user.id === memberId ? true : null,
+    }));
+
+    await Invitation.bulkCreate(invitations, { transaction: t });
 
     return createdMeeting;
   });
@@ -119,5 +146,52 @@ exports.createMeeting = catchAsync(async (req, res, next) => {
   res.status(201).json({
     message: "Meeting was successfully created",
     meetingId: newMeeting.id,
+  });
+});
+
+exports.updateMeeting = catchAsync(async (req, res, next) => {
+  const { meetingId } = req.params;
+  const { startDate, subject, summary, membersIds, isFinished } = req.body;
+
+  const meetingToUpdate = await Meeting.findOne({ where: { id: meetingId } });
+  if (!meetingToUpdate) {
+    return next(new AppError(`Meeting with ID ${meetingId} not found`, 404));
+  }
+
+  // Updating the meeting
+  await meetingToUpdate.update({
+    startDate: startDate || meetingToUpdate.startDate,
+    subject: subject || meetingToUpdate.subject,
+    summary: summary || meetingToUpdate.summary,
+    isFinished: isFinished || meetingToUpdate.isFinished,
+  });
+
+  // Updating invitations
+  await Invitation.destroy({
+    where: { [Op.and]: [{ isAccepted: false }, { meetingId: meetingId }] },
+  });
+
+  if (membersIds && membersIds.length > 0) {
+    const invitationsToCreate = membersIds.map((memberId) => ({
+      userSender: req.user.id,
+      userParticipant: memberId,
+      meetingId: meetingId,
+    }));
+    await Invitation.bulkCreate(invitationsToCreate);
+  }
+
+  // Creating resources
+  if (req.files && req.files.length > 0) {
+    await Resource.destroy({ where: { meetingId: meetingId } });
+    deleteFilesThatStartsWith(`meeting-${meetingId}`);
+    const resourcesToCreate = req.files.map((file) => ({
+      filepath: file.path,
+      meetingId: meetingId,
+    }));
+    await Resource.bulkCreate(resourcesToCreate);
+  }
+
+  res.status(200).json({
+    message: "Meeting was successfully updated",
   });
 });

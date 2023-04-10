@@ -7,7 +7,20 @@ const router = express.Router();
 router.use(authController.protect);
 router.use(authController.restrictTo("coordinator", "admin"));
 
-router.route("/").post(meetingController.createMeeting);
-router.route("/:meetingId").get(meetingController.getMeeting);
+router
+  .route("/")
+  .post(
+    meetingController.meetingBodyValidation,
+    meetingController.createMeeting
+  );
+
+router
+  .route("/:meetingId")
+  .get(meetingController.getMeeting)
+  .patch(
+    meetingController.meetingBodyValidation,
+    meetingController.uploadFiles,
+    meetingController.updateMeeting
+  );
 
 module.exports = router;

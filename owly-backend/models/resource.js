@@ -6,8 +6,7 @@ module.exports = (sequelize, DataTypes) => {
      * Helper method for defining associations.
      */
     static associate({ Meeting, ResourceType }) {
-      this.belongsTo(Meeting, { foreignKey: "meeting_fk" });
-      this.belongsTo(ResourceType, { foreignKey: "type_fk" });
+      this.belongsTo(Meeting);
     }
   }
   Resource.init(
@@ -32,11 +31,6 @@ module.exports = (sequelize, DataTypes) => {
       meetingId: {
         type: DataTypes.INTEGER,
         field: "meeting_fk",
-      },
-      typeId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        field: "type_fk",
       },
     },
     {
