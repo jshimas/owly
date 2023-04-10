@@ -3,6 +3,7 @@
 
 # Ignore backend environment file
 backend/.env
+backend/public/files
 
 # Ignore frontend build files
 frontend/dist

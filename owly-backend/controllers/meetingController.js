@@ -23,6 +23,11 @@ const limits = {
   fileSize: 1024 * 1024 * 5, // 5MB
 };
 
+exports.deleteOldFiles = catchAsync(async (req, res, next) => {
+  await deleteFilesThatStartsWith(`meeting-${req.params.meetingId}`);
+  next();
+});
+
 // Create the Multer middleware instance
 exports.uploadFiles = multer({ storage, limits }).array("files");
 
@@ -183,7 +188,6 @@ exports.updateMeeting = catchAsync(async (req, res, next) => {
   // Creating resources
   if (req.files && req.files.length > 0) {
     await Resource.destroy({ where: { meetingId: meetingId } });
-    deleteFilesThatStartsWith(`meeting-${meetingId}`);
     const resourcesToCreate = req.files.map((file) => ({
       filepath: file.path,
       meetingId: meetingId,

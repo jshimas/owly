@@ -50,7 +50,6 @@ exports.signup = catchAsync(async (req, res, next) => {
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(req.body);
 
   // 1) Check if email and password is provided
   if (!email || !password) {
@@ -59,7 +58,6 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // 2) Check if user exists & password is correct
   const user = await User.findOne({ where: { email } });
-  console.log(user.toJSON());
 
   if (!user || !(await user.isCorrectPassword(password, user.password))) {
     return next(new AppError("Incorrect email or password", 401));
@@ -72,8 +70,6 @@ exports.login = catchAsync(async (req, res, next) => {
 exports.restrictTo =
   (...roles) =>
   (req, res, next) => {
-    console.log(roles);
-    console.log(req.user.role);
     if (!roles.includes(req.user.role))
       return next(
         new AppError("You do not have permission to perform this action", 403)
