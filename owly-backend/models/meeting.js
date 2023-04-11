@@ -52,6 +52,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "meeting",
       updatedAt: false,
       createdAt: false,
+      name: { singular: "meeting" },
     }
   );
   return Meeting;

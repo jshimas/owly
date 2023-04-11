@@ -72,7 +72,12 @@ exports.restrictTo =
   (req, res, next) => {
     if (!roles.includes(req.user.role))
       return next(
-        new AppError("You do not have permission to perform this action", 403)
+        new AppError(
+          `You do not have permission to perform this action. This endpoint is restricted to ${roles.join(
+            ","
+          )}`,
+          403
+        )
       );
     next();
   };

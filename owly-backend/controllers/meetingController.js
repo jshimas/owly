@@ -195,7 +195,5 @@ exports.updateMeeting = catchAsync(async (req, res, next) => {
     await Resource.bulkCreate(resourcesToCreate);
   }
 
-  res.status(200).json({
-    message: "Meeting was successfully updated",
-  });
+  res.status(204);
 });
