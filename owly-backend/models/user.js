@@ -7,20 +7,20 @@ module.exports = (sequelize, DataTypes) => {
       return await bcrypt.compare(candidatePassword, this.password);
     }
 
-    static associate({ Meeting, Invitation, UserRole }) {
+    static associate({ Meeting, UserRole, School, Activity }) {
+      this.belongsToMany(Activity, { through: "Supervisor" });
       this.belongsToMany(Meeting, {
         through: {
-          model: "Invitation",
+          model: "Participant",
           unique: false,
         },
         as: "meetings",
-        foreignKey: "user_participant_fk",
+        foreignKey: "user_fk",
         otherKey: "meeting_fk",
       });
-
-      this.hasMany(Invitation, { foreignKey: "user_sender_fk" });
-      this.hasMany(Invitation, { foreignKey: "user_participant_fk" });
+      this.hasMany(Meeting, { foreignKey: "user_coordinator_fk" });
       this.belongsTo(UserRole);
+      this.belongsTo(School);
     }
   }
   User.init(
@@ -71,7 +71,7 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
-      school: {
+      schoolId: {
         type: DataTypes.INTEGER,
         field: "school_fk",
       },

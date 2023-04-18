@@ -7,18 +7,21 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ Resource, User, Invitation }) {
-      this.hasMany(Resource, { foreignKey: "meeting_fk" });
-      this.hasMany(Invitation, { foreignKey: "meeting_fk" });
+    static associate({ Image, User }) {
+      this.hasMany(Image);
+      this.belongsTo(User, {
+        foreignKey: "user_coordinator_fk",
+        as: "coordinator",
+      });
 
       this.belongsToMany(User, {
         through: {
-          model: "Invitation",
+          model: "Participant",
           unique: false,
         },
-        as: "members",
+        as: "participants",
         foreignKey: "meeting_fk",
-        otherKey: "user_participant_fk",
+        otherKey: "user_fk",
       });
     }
   }
@@ -29,22 +32,33 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      startDate: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        field: "start_date",
-      },
-      isFinished: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-        field: "is_finished",
-      },
       subject: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      summary: DataTypes.STRING,
+      date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      startTime: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        field: "start_time",
+      },
+      endTime: {
+        type: DataTypes.DATE,
+        field: "start_time",
+      },
+      place: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      notes: DataTypes.STRING,
+      coordinatorId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: "user_coordinator_fk",
+      },
     },
     {
       sequelize,
@@ -52,7 +66,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "meeting",
       updatedAt: false,
       createdAt: false,
-      name: { singular: "meeting" },
+      name: { singular: "meeting", plural: "meetings" },
     }
   );
   return Meeting;
