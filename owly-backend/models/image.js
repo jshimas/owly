@@ -5,8 +5,9 @@ module.exports = (sequelize, DataTypes) => {
     /**
      * Helper method for defining associations.
      */
-    static associate({ Meeting, ResourceType }) {
+    static associate({ Meeting, Activity }) {
       this.belongsTo(Meeting);
+      this.belongsTo(Activity);
     }
   }
   Resource.init(
@@ -20,10 +21,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      eventId: {
-        type: DataTypes.INTEGER,
-        field: "event_fk",
-      },
       activityId: {
         type: DataTypes.INTEGER,
         field: "activity_fk",
@@ -35,11 +32,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Resource",
-      tableName: "resource",
+      modelName: "Image",
+      tableName: "image",
       createdAt: false,
       updatedAt: false,
-      name: { singular: "resource", plural: "resources" },
+      name: { singular: "image", plural: "images" },
     }
   );
   return Resource;
