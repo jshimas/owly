@@ -1,12 +1,8 @@
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Meeting extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate({ Image, User }) {
       this.hasMany(Image);
       this.belongsTo(User, {
@@ -39,6 +35,15 @@ module.exports = (sequelize, DataTypes) => {
       date: {
         type: DataTypes.DATE,
         allowNull: false,
+        validate: {
+          isDate: true,
+          isDateAfterOrEqualToday(value) {
+            const today = new Date();
+            const inputDate = new Date(value);
+            if (inputDate < today)
+              throw new Error("Date should be today or in the future");
+          },
+        },
       },
       startTime: {
         type: DataTypes.DATE,

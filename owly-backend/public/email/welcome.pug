@@ -1,0 +1,16 @@
+extends baseEmail 
+
+block content 
+  p Hi #{firstName},
+  p Welcome to Eco-School project, we're glad to have you!
+  p A new user account for you has been created. To fully register your account we will need you to create a password.
+  table.btn.btn-primary(role='presentation', border='0', cellpadding='0', cellspacing='0')
+    tbody
+      tr
+        td(align='left')
+          table(role='presentation', border='0', cellpadding='0', cellspacing='0')
+            tbody
+              tr
+                td
+                  a(href=`${url}`, target='_blank') Create your password
+  p - Justinas Simas, Owly coordinator

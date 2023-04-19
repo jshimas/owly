@@ -22,10 +22,28 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
         field: "start_date",
+        validate: {
+          isDate: true,
+          isDateAfterOrEqualToday(value) {
+            const today = new Date();
+            const inputDate = new Date(value);
+            if (inputDate < today)
+              throw new Error("Date should be today or in the future");
+          },
+        },
       },
       endDate: {
         type: DataTypes.DATE,
         field: "end_date",
+        validate: {
+          isDate: true,
+          isEndDateAfterOrEqualStartDate(value) {
+            const today = new Date();
+            const inputDate = new Date(value);
+            if (inputDate < today)
+              throw new Error("End date should not be before the start date");
+          },
+        },
       },
       approved: DataTypes.BOOLEAN,
       reason: DataTypes.STRING,
