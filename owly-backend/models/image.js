@@ -33,9 +33,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Image",
-      tableName: "image",
-      createdAt: false,
-      updatedAt: false,
+      tableName: "images",
+      timestamps: false,
       name: { singular: "image", plural: "images" },
     }
   );

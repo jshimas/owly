@@ -31,9 +31,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Participant",
-      tableName: "participant",
-      updatedAt: false,
-      createdAt: false,
+      tableName: "participants",
+      timestamps: false,
       name: { singular: "participant", plural: "participants" },
     }
   );

@@ -52,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       endTime: {
         type: DataTypes.DATE,
-        field: "start_time",
+        field: "end_time",
       },
       place: {
         type: DataTypes.STRING,
@@ -68,9 +68,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Meeting",
-      tableName: "meeting",
-      updatedAt: false,
-      createdAt: false,
+      tableName: "meetings",
+      timestamps: false,
       name: { singular: "meeting", plural: "meetings" },
     }
   );

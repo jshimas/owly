@@ -23,9 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "UserRole",
-      tableName: "user_role",
-      updatedAt: false,
-      createdAt: false,
+      tableName: "user_roles",
+      timestamps: false,
       name: { singular: "role" },
     }
   );

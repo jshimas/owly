@@ -3,11 +3,13 @@ const pug = require("pug");
 const { htmlToText } = require("html-to-text");
 
 module.exports = class Email {
-  constructor(user, url) {
-    this.to = user.email;
-    this.firstName = user.firstName;
+  constructor(userSender, userReceiver, url) {
+    this.to = Array.isArray(userReceiver)
+      ? userReceiver.map((r) => r.email)
+      : userReceiver.email;
+    this.senderName = `${userSender.firstname} ${userSender.lastname}`;
     this.url = url;
-    this.from = `Owly team coordinator <${process.env.EMAIL_FROM}>`;
+    this.from = `Owly team coordinator <${userSender.email}>`;
   }
 
   newTransport() {
@@ -22,20 +24,21 @@ module.exports = class Email {
   }
 
   // Send the actual email
-  async send(template, subject) {
+  async send(template, subject, meeting) {
     // 1) Render HTML based on a pug template
     const html = pug.renderFile(
       `${__dirname}/../public/email/${template}.pug`,
       {
-        firstName: this.firstName,
+        senderName: this.senderName,
         url: this.url,
         subject,
+        meeting,
       }
     );
 
     // 2) Define email options
     const mailOptions = {
-      from: this.from,
+      from: "simjustinas@gmail.com",
       to: this.to,
       subject: subject,
       html,
@@ -43,14 +46,15 @@ module.exports = class Email {
     };
 
     // 3) Creater a transport and send email
+    console.log("SENDING EMAIL");
     await this.newTransport().sendMail(mailOptions);
   }
 
-  async sendWelcome() {
+  async sendPasswordCreate() {
     await this.send("welcome", "Welcome to the Owly!");
   }
 
   async sendMeetingDetails(meeting) {
-    await this.send("meeting", "Invitation to join the meeting");
+    await this.send("meeting", "Invitation to join the meeting", meeting);
   }
 };

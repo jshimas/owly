@@ -1,5 +1,6 @@
 const { Model } = require("sequelize");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -7,8 +8,28 @@ module.exports = (sequelize, DataTypes) => {
       return await bcrypt.compare(candidatePassword, this.password);
     }
 
+    async createPassword(user) {
+      user.password = await bcrypt.hash(user.password, 12);
+      user.passwordConfirm = undefined;
+    }
+
+    createPasswordCreateToken() {
+      const resetToken = crypto.randomBytes(32).toString("hex");
+
+      this.passwordResetToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+
+      this.passwordResetExpires = Date.now() + 3 * 24 * 60 * 60 * 1000; // Expires in 5 days
+
+      return resetToken;
+    }
+
     static associate({ Meeting, UserRole, School, Activity }) {
-      this.belongsToMany(Activity, { through: "Supervisor" });
+      this.belongsToMany(Activity, {
+        through: "Supervisor",
+      });
       this.belongsToMany(Meeting, {
         through: {
           model: "Participant",
@@ -20,9 +41,10 @@ module.exports = (sequelize, DataTypes) => {
       });
       this.hasMany(Meeting, { foreignKey: "user_coordinator_fk" });
       this.belongsTo(UserRole);
-      this.belongsTo(School);
+      this.belongsTo(School, { foreignKey: "school_fk" });
     }
   }
+
   User.init(
     {
       id: {
@@ -44,26 +66,19 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
         isEmail: { msg: "Email is in a wrong format" },
       },
-      points: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-      },
       roleId: {
         type: DataTypes.INTEGER,
-        defaultValue: null,
+        allowNull: false,
         field: "role_fk",
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: false,
         validate: {
           min: 8,
         },
       },
       passwordConfirm: {
         type: DataTypes.VIRTUAL,
-        allowNull: false,
         validate: {
           isEqualToPassword(value) {
             if (value !== this.password)
@@ -75,28 +90,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         field: "school_fk",
       },
+      passwordCreateToken: DataTypes.VIRTUAL,
+      passwordCreateExpires: DataTypes.VIRTUAL,
     },
     {
       sequelize,
-      tableName: "user",
+      tableName: "users",
       modelName: "User",
-      createdAt: false,
-      updatedAt: false,
+      timestamps: false,
       name: { singular: "user", plural: "users" },
     }
   );
-
-  User.beforeCreate(async (user) => {
-    user.password = await bcrypt.hash(user.password, 12);
-    user.passwordConfirm = undefined;
-  });
-
-  // User.beforeFind((options) => {
-  //   if (!options.attributes) {
-  //     options.attributes = {};
-  //   }
-  //   options.attributes.exclude = ["password"];
-  // });
 
   return User;
 };
