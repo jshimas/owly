@@ -1,4 +1,4 @@
-const { sequelize, Meeting, User, Resource, Invitation } = require("../models");
+const { sequelize, Meeting, User, Image, Invitation } = require("../models");
 const { Op } = require("sequelize");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
@@ -23,30 +23,39 @@ const limits = {
   fileSize: 1024 * 1024 * 5, // 5MB
 };
 
-exports.deleteOldFiles = catchAsync(async (req, res, next) => {
-  await deleteFilesThatStartsWith(`meeting-${req.params.meetingId}`);
-  next();
-});
-
 // Create the Multer middleware instance
 exports.uploadFiles = multer({ storage, limits }).array("files");
 
+exports.deleteOldFiles = catchAsync(async (req, res, next) => {
+  await deleteFilesThatStartsWith(`meeting-${req.params.id}`);
+  next();
+});
+
 exports.getMeeting = catchAsync(async (req, res, next) => {
-  const { meetingId } = req.params;
+  const { id: meetingId } = req.params;
 
   const meeting = await Meeting.findByPk(meetingId, {
+    attributes: [
+      "id",
+      "subject",
+      "date",
+      "startTime",
+      "endTime",
+      "place",
+      "notes",
+    ],
     include: [
       {
         model: User,
-        as: "members",
-        attributes: ["id", "firstname", "lastname", "email", "roleId"],
+        as: "participants",
+        attributes: ["id", "firstname", "lastname", "email"],
         through: {
-          attributes: ["id", "isAccepted"],
-          as: "invitation",
+          attributes: ["editor"],
+          as: "permissions",
         },
       },
       {
-        model: Resource,
+        model: Image,
         attributes: ["id", "filepath"],
       },
     ],

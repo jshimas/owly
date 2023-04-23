@@ -1,7 +1,7 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Resource extends Model {
+  class Image extends Model {
     /**
      * Helper method for defining associations.
      */
@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(Activity);
     }
   }
-  Resource.init(
+  Image.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -38,5 +38,5 @@ module.exports = (sequelize, DataTypes) => {
       name: { singular: "image", plural: "images" },
     }
   );
-  return Resource;
+  return Image;
 };

@@ -15,7 +15,7 @@ router
   );
 
 router
-  .route("/:meetingId")
+  .route("/:id")
   .get(meetingController.getMeeting)
   .patch(
     meetingController.meetingBodyValidation,
