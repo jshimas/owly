@@ -70,32 +70,16 @@ exports.getMeeting = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllMeetings = catchAsync(async (req, res, next) => {
-  const { id: userId } = req.params;
-
-  const user = await User.findByPk(userId);
-  if (!user)
-    return next(new AppError(`The user with ID ${userId} does not exist`, 404));
-
   const isFinishedWhereClause =
     req.query.isFinished !== undefined
       ? req.query.isFinished.toLowerCase() === "true"
-        ? { isFinished: true }
-        : { isFinished: false }
+        ? { endTime: { [Op.not]: null } }
+        : { endTime: null }
       : {};
 
   const meetings = await Meeting.findAll({
-    attributes: ["id", "startDate", "isFinished", "subject", "summary"],
+    attributes: ["id", "subject", "date", "startTime", "endTime", "place"],
     where: isFinishedWhereClause,
-    include: [
-      {
-        model: Invitation,
-        as: "invitations",
-        attributes: [],
-        where: {
-          userParticipant: userId,
-        },
-      },
-    ],
   });
 
   res.status(200).json({ meetings });

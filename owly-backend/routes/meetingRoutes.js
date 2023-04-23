@@ -9,6 +9,7 @@ router.use(authController.restrictTo("coordinator", "admin"));
 
 router
   .route("/")
+  .get(meetingController.getAllMeetings)
   .post(
     meetingController.meetingBodyValidation,
     meetingController.createMeeting
