@@ -9,7 +9,7 @@ module.exports = class Email {
       : userReceiver.email;
     this.senderName = `${userSender.firstname} ${userSender.lastname}`;
     this.url = url;
-    this.from = `Owly team coordinator <${userSender.email}>`;
+    this.from = `Owly ${userSender.role} <${userSender.email}>`;
   }
 
   newTransport() {
@@ -38,7 +38,7 @@ module.exports = class Email {
 
     // 2) Define email options
     const mailOptions = {
-      from: "simjustinas@gmail.com",
+      from: this.from,
       to: this.to,
       subject: subject,
       html,
