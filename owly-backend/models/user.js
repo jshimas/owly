@@ -8,24 +8,6 @@ module.exports = (sequelize, DataTypes) => {
       return await bcrypt.compare(candidatePassword, this.password);
     }
 
-    async createPassword(user) {
-      user.password = await bcrypt.hash(user.password, 12);
-      user.passwordConfirm = undefined;
-    }
-
-    createPasswordCreateToken() {
-      const resetToken = crypto.randomBytes(32).toString("hex");
-
-      this.passwordResetToken = crypto
-        .createHash("sha256")
-        .update(resetToken)
-        .digest("hex");
-
-      this.passwordResetExpires = Date.now() + 3 * 24 * 60 * 60 * 1000; // Expires in 5 days
-
-      return resetToken;
-    }
-
     static associate({ Meeting, UserRole, School, Activity }) {
       this.belongsToMany(Activity, {
         through: "Supervisor",
@@ -77,21 +59,10 @@ module.exports = (sequelize, DataTypes) => {
           min: 8,
         },
       },
-      passwordConfirm: {
-        type: DataTypes.VIRTUAL,
-        validate: {
-          isEqualToPassword(value) {
-            if (value !== this.password)
-              throw new Error("Passwords do not match.");
-          },
-        },
-      },
       schoolId: {
         type: DataTypes.INTEGER,
         field: "school_fk",
       },
-      passwordCreateToken: DataTypes.VIRTUAL,
-      passwordCreateExpires: DataTypes.VIRTUAL,
     },
     {
       sequelize,

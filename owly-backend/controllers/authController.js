@@ -1,9 +1,9 @@
-const jwt = require("jsonwebtoken");
-const { User, School, UserRole } = require("../models");
+const { User, UserRole } = require("../models");
 const { promisify } = require("util");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const createSendToken = require("../utils/createSendToken");
+const jwt = require("jsonwebtoken");
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;

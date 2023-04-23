@@ -1,9 +1,10 @@
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const Email = require("../utils/email");
-const { User, UserRole, School } = require("../models");
+const { User, UserRole, School, PasswordReset } = require("../models");
 const createSendToken = require("../utils/createSendToken");
-const { Op } = require("../models");
+const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 
 exports.getAllUser = catchAsync(async (req, res) => {
   const users = await User.findAll({
@@ -23,6 +24,7 @@ exports.getAllUser = catchAsync(async (req, res) => {
 });
 
 exports.createUser = catchAsync(async (req, res, next) => {
+  // Vlaidating if user does not already exist and the school is valid
   const existingUser = await User.findOne({ where: { email: req.body.email } });
   const existingSchool = await School.findByPk(req.body.schoolId);
 
@@ -34,6 +36,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
   if (!existingSchool)
     return next(new AppError("Provided school not found.", 404));
 
+  // Creating new user
   const newUser = await User.create({
     firstname: req.body.firstname,
     lastname: req.body.lastname,
@@ -42,16 +45,23 @@ exports.createUser = catchAsync(async (req, res, next) => {
     roleId: req.body.roleId,
   });
 
-  const passwordCreationToken = newUser.createPasswordCreateToken();
-  await newUser.save();
+  // Creating password reset token
+  const token = crypto.randomBytes(32).toString("hex");
+  console.log(User);
+  console.log(PasswordReset);
+  await PasswordReset.create({
+    email: newUser.email,
+    token,
+  });
 
+  // Sending user token to create a new password
   try {
     const URL = `${req.protocol}://${req.get(
       "host"
-    )}/api/v1/users/create-password/${passwordCreationToken}`;
+    )}/api/v1/users/create-password/${token}`;
 
     const newUserJson = newUser.toJSON();
-    await new Email(newUserJson, newUserJson, URL).sendPasswordCreate();
+    await new Email(req.user, newUserJson, URL).sendPasswordCreate();
 
     res.status(200).json({
       message: `Email was sent to ${newUserJson.email} to create an account password`,
@@ -70,30 +80,40 @@ exports.createUser = catchAsync(async (req, res, next) => {
 });
 
 exports.createPassword = catchAsync(async (req, res, next) => {
-  // 1) Get user based on the token
-  const hashedToken = crypto
-    .createHash("sha256")
-    .update(req.params.token)
-    .digest("hex");
+  const { email, password, passwordConfirm } = req.body;
 
-  const user = await User.findOne({
-    where: {
-      passwordCreateToken: hashedToken,
-      passwordCreateExpires: { [Op.gt]: new Date() },
-    },
+  if (password !== passwordConfirm) {
+    return next(new AppError(`Passwords do not match`, 400));
+  }
+
+  // Look up the password reset token
+  const resetToken = await PasswordReset.findOne({
+    where: { email, token: req.params.token },
+    order: [["createdAt", "DESC"]],
   });
 
-  // 2) If token has not expired, and there is a user, set a new password
-  if (!user) {
-    return next(new AppError("Token is invalid or expired.", 400));
+  if (!resetToken) {
+    return next(new AppError(`Invalid token`, 400));
   }
-  user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
-  user.passwordResetExpires = undefined;
-  user.passwordResetToken = undefined;
+
+  // Update the user's password
+  const user = await User.findOne({ where: { email } });
+
+  if (!user) {
+    return next(
+      new AppError(
+        `Sorry but the account with email: ${email} is no  longer valid`,
+        400
+      )
+    );
+  }
+
+  user.password = await bcrypt.hash(password, 12);
   await user.save();
 
-  // 3) Update changedPasswordAt property for the user
+  // Delete the password reset token
+  await resetToken.destroy();
+
   // 4) Log the user in, send JWT
   createSendToken(user.id, 200, res);
 });

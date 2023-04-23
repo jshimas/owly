@@ -7,10 +7,16 @@ const invitationController = require("../controllers/invitationController");
 const router = express.Router();
 
 router.post("/login", authController.login);
-router.post("/", userController.createUser);
+router.post("/create-password/:token", userController.createPassword);
 
 // All further routes are protected from unauthorized use
 router.use(authController.protect);
+
+router.post(
+  "/",
+  authController.restrictTo("coordinator", "admin"),
+  userController.createUser
+);
 
 router
   .route("/")
