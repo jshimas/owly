@@ -49,10 +49,20 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
         field: "start_time",
+        validate: {
+          isDate: true,
+        },
       },
       endTime: {
         type: DataTypes.DATE,
         field: "end_time",
+        validate: {
+          isDate: true,
+          isAfter: {
+            args: this.startTime?.toString(),
+            msg: "The end time of the meeting must be after the start time.",
+          },
+        },
       },
       place: {
         type: DataTypes.STRING,

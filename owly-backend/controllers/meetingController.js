@@ -1,4 +1,4 @@
-const { sequelize, Meeting, User, Image, Invitation } = require("../models");
+const { sequelize, Meeting, User, Image, Participant } = require("../models");
 const { Op } = require("sequelize");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
@@ -86,23 +86,17 @@ exports.getAllMeetings = catchAsync(async (req, res, next) => {
 });
 
 exports.meetingBodyValidation = catchAsync(async (req, res, next) => {
-  const meeting = req.body;
-  const { membersIds } = meeting;
-
-  const currentDate = new Date();
-  if (new Date(meeting.startDate) < currentDate) {
-    return next(new AppError("The startDate should be in the future", 400));
-  }
+  const { editorsIds } = req.body;
 
   // Checking if all the users exists
-  if (membersIds && membersIds.length > 0) {
+  if (editorsIds && editorsIds.length > 0) {
     const existingUsers = await User.findAll({
       where: {
-        id: membersIds,
+        id: editorsIds,
       },
     });
     const existingUserIds = existingUsers.map((user) => user.id);
-    const invalidUserIds = membersIds.filter(
+    const invalidUserIds = editorsIds.filter(
       (id) => !existingUserIds.includes(id)
     );
     if (invalidUserIds.length > 0) {
@@ -121,29 +115,38 @@ exports.meetingBodyValidation = catchAsync(async (req, res, next) => {
 });
 
 exports.createMeeting = catchAsync(async (req, res, next) => {
-  const meeting = req.body;
-  const { membersIds } = meeting;
+  const { editorsIds } = req.body;
+
+  const meetingData = {
+    ...req.body,
+    coordinatorId: req.user.id,
+  };
 
   const newMeeting = await sequelize.transaction(async (t) => {
-    const createdMeeting = await Meeting.create(meeting, { transaction: t });
+    const createdMeeting = await Meeting.create(meetingData, {
+      transaction: t,
+    });
 
-    if (!membersIds.includes(req.user.id)) membersIds.push(req.user.id);
+    if (!editorsIds.includes(req.user.id)) editorsIds.push(req.user.id);
 
-    const invitations = membersIds.map((memberId) => ({
-      userSender: req.user.id,
-      userParticipant: memberId,
+    const editors = editorsIds.map((memberId) => ({
+      editor: true,
+      userId: memberId,
       meetingId: createdMeeting.id,
-      isAccepted: req.user.id === memberId ? true : null,
     }));
 
-    await Invitation.bulkCreate(invitations, { transaction: t });
+    console.log(editors);
+
+    console.log(Participant);
+
+    await Participant.bulkCreate(editors, { transaction: t });
 
     return createdMeeting;
   });
 
   res.status(201).json({
     message: "Meeting was successfully created",
-    meetingId: newMeeting.id,
+    URI: `/meetings/${newMeeting.id}`,
   });
 });
 
