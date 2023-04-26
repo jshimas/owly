@@ -20,8 +20,8 @@ router
   .get(meetingController.getMeeting)
   .patch(
     meetingController.meetingBodyValidation,
-    meetingController.deleteOldFiles,
-    meetingController.uploadFiles,
+    meetingController.deleteOldImages,
+    meetingController.uploadImages,
     meetingController.updateMeeting
   );
 

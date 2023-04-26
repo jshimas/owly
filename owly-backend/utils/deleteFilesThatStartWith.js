@@ -5,7 +5,7 @@ module.exports = async (startingWith) => {
   const directoryPath = path.join(
     __dirname.split("\\").slice(0, -1).join("\\"),
     "public",
-    "files"
+    "images"
   );
 
   const { readdir, unlink } = fs.promises;

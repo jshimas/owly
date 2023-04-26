@@ -9,13 +9,10 @@ const deleteFilesThatStartsWith = require("../utils/deleteFilesThatStartWith");
 // Define the storage and file limits
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.resolve("public/files/"));
+    cb(null, path.resolve("public/images/"));
   },
   filename: function (req, file, cb) {
-    cb(
-      null,
-      `meeting-${req.params.meetingId}-${Date.now()}-${file.originalname}`
-    );
+    cb(null, `meeting-${req.params.id}-${Date.now()}-${file.originalname}`);
   },
 });
 
@@ -24,9 +21,9 @@ const limits = {
 };
 
 // Create the Multer middleware instance
-exports.uploadFiles = multer({ storage, limits }).array("files");
+exports.uploadImages = multer({ storage, limits }).array("images");
 
-exports.deleteOldFiles = catchAsync(async (req, res, next) => {
+exports.deleteOldImages = catchAsync(async (req, res, next) => {
   await deleteFilesThatStartsWith(`meeting-${req.params.id}`);
   next();
 });
@@ -86,17 +83,20 @@ exports.getAllMeetings = catchAsync(async (req, res, next) => {
 });
 
 exports.meetingBodyValidation = catchAsync(async (req, res, next) => {
-  const { editorsIds } = req.body;
+  const participantsIds = req.body.participantsIds ?? [];
+  const editorsIds = req.body.editorsIds ?? [];
+
+  const usersIds = [...new Set(participantsIds.concat(editorsIds))];
 
   // Checking if all the users exists
-  if (editorsIds && editorsIds.length > 0) {
+  if (usersIds && usersIds.length > 0) {
     const existingUsers = await User.findAll({
       where: {
-        id: editorsIds,
+        id: usersIds,
       },
     });
     const existingUserIds = existingUsers.map((user) => user.id);
-    const invalidUserIds = editorsIds.filter(
+    const invalidUserIds = usersIds.filter(
       (id) => !existingUserIds.includes(id)
     );
     if (invalidUserIds.length > 0) {
@@ -135,10 +135,6 @@ exports.createMeeting = catchAsync(async (req, res, next) => {
       meetingId: createdMeeting.id,
     }));
 
-    console.log(editors);
-
-    console.log(Participant);
-
     await Participant.bulkCreate(editors, { transaction: t });
 
     return createdMeeting;
@@ -151,8 +147,11 @@ exports.createMeeting = catchAsync(async (req, res, next) => {
 });
 
 exports.updateMeeting = catchAsync(async (req, res, next) => {
-  const { meetingId } = req.params;
-  const { startDate, subject, summary, membersIds, isFinished } = req.body;
+  const meetingBody = req.body;
+  const { id: meetingId } = req.params;
+  const participantsIds = req.body.participantsIds ?? [];
+  const editorsIds = req.body.editorsIds ?? [];
+  const allParticipantsIds = [...new Set(participantsIds.concat(editorsIds))];
 
   const meetingToUpdate = await Meeting.findOne({ where: { id: meetingId } });
   if (!meetingToUpdate) {
@@ -160,36 +159,40 @@ exports.updateMeeting = catchAsync(async (req, res, next) => {
   }
 
   // Updating the meeting
-  await meetingToUpdate.update({
-    startDate: startDate || meetingToUpdate.startDate,
-    subject: subject || meetingToUpdate.subject,
-    summary: summary || meetingToUpdate.summary,
-    isFinished: isFinished || meetingToUpdate.isFinished,
+  await sequelize.transaction(async (t) => {
+    await meetingToUpdate.update({ ...meetingBody }, { transaction: t });
+
+    // Updating invitations
+    await Participant.destroy({
+      where: { meetingId: meetingId },
+      transaction: t,
+    });
+
+    if (allParticipantsIds && allParticipantsIds.length > 0) {
+      const participantsToCreate = allParticipantsIds.map((participantId) => ({
+        editor: editorsIds.includes(participantId),
+        userId: participantId,
+        meetingId: meetingId,
+      }));
+
+      await Participant.bulkCreate(participantsToCreate, { transaction: t });
+    }
+
+    // Creating resources
+    if (req.files && req.files.length > 0) {
+      await Image.destroy({
+        where: { meetingId: meetingId },
+        transaction: t,
+      });
+
+      const imagesToCreate = req.files.map((image) => ({
+        filepath: image.path,
+        meetingId: meetingId,
+      }));
+
+      await Image.bulkCreate(imagesToCreate, { transaction: t });
+    }
   });
 
-  // Updating invitations
-  await Invitation.destroy({
-    where: { [Op.and]: [{ isAccepted: false }, { meetingId: meetingId }] },
-  });
-
-  if (membersIds && membersIds.length > 0) {
-    const invitationsToCreate = membersIds.map((memberId) => ({
-      userSender: req.user.id,
-      userParticipant: memberId,
-      meetingId: meetingId,
-    }));
-    await Invitation.bulkCreate(invitationsToCreate);
-  }
-
-  // Creating resources
-  if (req.files && req.files.length > 0) {
-    await Resource.destroy({ where: { meetingId: meetingId } });
-    const resourcesToCreate = req.files.map((file) => ({
-      filepath: file.path,
-      meetingId: meetingId,
-    }));
-    await Resource.bulkCreate(resourcesToCreate);
-  }
-
-  res.status(204);
+  res.status(204).json({});
 });

@@ -51,6 +51,11 @@ module.exports = (sequelize, DataTypes) => {
         field: "start_time",
         validate: {
           isDate: true,
+          isDateAfterOrEqualToday(value) {
+            const inputDate = new Date(value);
+            if (inputDate < this.date)
+              throw new Error("Date should be today or in the future");
+          },
         },
       },
       endTime: {
