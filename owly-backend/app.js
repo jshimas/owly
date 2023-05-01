@@ -4,7 +4,7 @@ const cookieParser = require("cookie-parser");
 const globalErrorHandler = require("./controllers/errorController");
 const userRoutes = require("./routes/userRoutes");
 const meetingRoutes = require("./routes/meetingRoutes");
-const invitationRoutes = require("./routes/invitationRoutes");
+const schoolRoutes = require("./routes/schoolRoutes");
 
 require("dotenv").config();
 const { sequelize } = require("./models");
@@ -19,8 +19,7 @@ app.use(cookieParser());
 // ROUTES
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/meetings", meetingRoutes);
-app.use("/api/v1/invitations", invitationRoutes);
-// app.use("/api/v1/school", schoolRouter);
+app.use("/api/v1/schools", schoolRoutes);
 
 app.all("*", (req, res, next) => {
   return res
@@ -34,7 +33,7 @@ const port = process.env.PORT || 8080;
 app.listen(port, host, async () => {
   console.log(`App running at http://${host}:${port}/`);
   await sequelize.authenticate();
-  // await sequelize.sync({ force: true });
+  // await sequelize.sync({ alter: true });
   console.log("Database connected!");
 });
 

@@ -2,8 +2,9 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class School extends Model {
-    static associate({ User }) {
+    static associate({ User, Activity }) {
       this.hasMany(User, { foreignKey: "school_fk" });
+      this.hasMany(Activity);
     }
   }
   School.init(
@@ -27,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "School",
       tableName: "schools",
+      name: { singular: "school", plural: "schools" },
       timestamps: false,
     }
   );

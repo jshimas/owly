@@ -1,10 +1,12 @@
-"use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Activity extends Model {
-    static associate({ School, User }) {
+    static associate({ School, User, Image }) {
       this.belongsTo(School, { foreignKey: "school_fk" });
-      this.belongsToMany(User, { through: "Supervisor" });
+      this.belongsToMany(User, { through: "Supervisor", as: "supervisors" });
+      this.belongsTo(User, { foreignKey: "user_creator_fk", as: "creator" });
+      this.hasMany(Image);
     }
   }
   Activity.init(
@@ -13,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
+      },
+      theme: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
       name: {
         type: DataTypes.STRING,
@@ -38,9 +44,8 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           isDate: true,
           isEndDateAfterOrEqualStartDate(value) {
-            const today = new Date();
             const inputDate = new Date(value);
-            if (inputDate < today)
+            if (inputDate < this.startDate)
               throw new Error("End date should not be before the start date");
           },
         },
@@ -52,6 +57,15 @@ module.exports = (sequelize, DataTypes) => {
       resources: DataTypes.STRING,
       location: DataTypes.STRING,
       notes: DataTypes.STRING,
+      creatorId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: "user_creator_fk",
+        references: {
+          model: "User",
+          key: "id",
+        },
+      },
       schoolId: {
         type: DataTypes.INTEGER,
         allowNull: false,

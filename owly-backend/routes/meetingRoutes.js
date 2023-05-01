@@ -5,12 +5,12 @@ const authController = require("../controllers/authController");
 const router = express.Router();
 
 router.use(authController.protect);
-router.use(authController.restrictTo("coordinator", "admin"));
 
 router
   .route("/")
   .get(meetingController.getAllMeetings)
   .post(
+    authController.restrictTo("coordinator", "admin"),
     meetingController.meetingBodyValidation,
     meetingController.createMeeting
   );
@@ -20,7 +20,6 @@ router
   .get(meetingController.getMeeting)
   .patch(
     meetingController.meetingBodyValidation,
-    meetingController.deleteOldImages,
     meetingController.uploadImages,
     meetingController.updateMeeting
   );

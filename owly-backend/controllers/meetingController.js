@@ -23,11 +23,6 @@ const limits = {
 // Create the Multer middleware instance
 exports.uploadImages = multer({ storage, limits }).array("images");
 
-exports.deleteOldImages = catchAsync(async (req, res, next) => {
-  await deleteFilesThatStartsWith(`meeting-${req.params.id}`);
-  next();
-});
-
 exports.getMeeting = catchAsync(async (req, res, next) => {
   const { id: meetingId } = req.params;
 
@@ -63,7 +58,7 @@ exports.getMeeting = catchAsync(async (req, res, next) => {
       new AppError(`The meeting with ID ${meetingId} does not exist`, 404)
     );
 
-  res.status(200).json({ meeting });
+  res.status(200).json({ meeting: meeting });
 });
 
 exports.getAllMeetings = catchAsync(async (req, res, next) => {
@@ -83,8 +78,8 @@ exports.getAllMeetings = catchAsync(async (req, res, next) => {
 });
 
 exports.meetingBodyValidation = catchAsync(async (req, res, next) => {
-  const participantsIds = req.body.participantsIds ?? [];
-  const editorsIds = req.body.editorsIds ?? [];
+  const participantsIds = req.body.participantsIds || [];
+  const editorsIds = req.body.editorsIds || [];
 
   const usersIds = [...new Set(participantsIds.concat(editorsIds))];
 
@@ -149,8 +144,8 @@ exports.createMeeting = catchAsync(async (req, res, next) => {
 exports.updateMeeting = catchAsync(async (req, res, next) => {
   const meetingBody = req.body;
   const { id: meetingId } = req.params;
-  const participantsIds = req.body.participantsIds ?? [];
-  const editorsIds = req.body.editorsIds ?? [];
+  const participantsIds = req.body.participantsIds || [];
+  const editorsIds = req.body.editorsIds || [];
   const allParticipantsIds = [...new Set(participantsIds.concat(editorsIds))];
 
   const meetingToUpdate = await Meeting.findOne({ where: { id: meetingId } });
@@ -194,5 +189,6 @@ exports.updateMeeting = catchAsync(async (req, res, next) => {
     }
   });
 
+  await deleteFilesThatStartsWith(`meeting-${req.params.id}`);
   res.status(204).json({});
 });
