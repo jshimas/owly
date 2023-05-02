@@ -13,11 +13,25 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
+      activityId: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Activity", // 'Movies' would also work
+          key: "id",
+        },
+      },
+      userId: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "User", // 'Actors' would also work
+          key: "id",
+        },
+      },
     },
     {
       sequelize,
       modelName: "Supervisor",
-      tableName: "supervisor",
+      tableName: "supervisors",
       timestamps: false,
     }
   );

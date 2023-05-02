@@ -11,6 +11,6 @@ module.exports = (err, req, res, next) => {
     success: err.success,
     message: err.message,
     errors: err.errors,
-    // stack: err.stack,
+    stack: err.stack,
   });
 };

@@ -23,6 +23,11 @@ const limits = {
 // Create the Multer middleware instance
 exports.uploadImages = multer({ storage, limits }).array("images");
 
+exports.deleteOldImages = catchAsync(async (req, res, next) => {
+  await deleteFilesThatStartsWith(`meeting-${req.params.id}`);
+  next();
+});
+
 exports.getMeeting = catchAsync(async (req, res, next) => {
   const { id: meetingId } = req.params;
 

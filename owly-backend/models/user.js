@@ -8,9 +8,9 @@ module.exports = (sequelize, DataTypes) => {
       return await bcrypt.compare(candidatePassword, this.password);
     }
 
-    static associate({ Meeting, UserRole, School, Activity }) {
+    static associate({ Meeting, UserRole, School, Activity, Supervisor }) {
       this.belongsToMany(Activity, {
-        through: "Supervisor",
+        through: Supervisor,
       });
       this.belongsToMany(Meeting, {
         through: {

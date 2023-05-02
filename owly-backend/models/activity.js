@@ -2,11 +2,11 @@ const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Activity extends Model {
-    static associate({ School, User, Image }) {
+    static associate({ School, User, Image, Supervisor }) {
       this.belongsTo(School, { foreignKey: "school_fk" });
-      this.belongsToMany(User, { through: "Supervisor", as: "supervisors" });
+      this.belongsToMany(User, { through: Supervisor, as: "supervisors" });
       this.belongsTo(User, { foreignKey: "user_creator_fk", as: "creator" });
-      this.hasMany(Image);
+      this.hasMany(Image, { onDelete: "CASCADE" });
     }
   }
   Activity.init(

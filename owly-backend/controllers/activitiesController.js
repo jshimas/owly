@@ -33,6 +33,11 @@ const limits = {
 // Create the Multer middleware instance
 exports.uploadImages = multer({ storage, limits }).array("images");
 
+exports.deleteOldImages = catchAsync(async (req, res, next) => {
+  await deleteFilesThatStartsWith(`activity-${req.params.activityId}`);
+  next();
+});
+
 exports.getAllActivities = catchAsync(async (req, res, next) => {
   const { schoolId } = req.params;
 
@@ -174,11 +179,13 @@ exports.createActivity = catchAsync(async (req, res, next) => {
   const newActivity = await sequelize.transaction(async (t) => {
     const activity = await Activity.create(activityBody, { transaction: t });
 
-    supervisorsIds.push(req.user.id);
+    if (!supervisorsIds.includes(req.user.id)) supervisorsIds.push(req.user.id);
     const supervisorsToCreate = supervisorsIds.map((sId) => ({
       userId: sId,
       activityId: activity.id,
     }));
+
+    console.log(supervisorsToCreate);
 
     await Supervisor.bulkCreate(supervisorsToCreate, { transaction: t });
 
@@ -235,6 +242,36 @@ exports.updateActivity = catchAsync(async (req, res, next) => {
     }
   });
 
-  await deleteFilesThatStartsWith(`activity-${req.params.id}`);
+  res.status(204).json({});
+});
+
+exports.deleteActivity = catchAsync(async (req, res, next) => {
+  const { schoolId, activityId } = req.params;
+
+  const school = await School.findByPk(schoolId);
+
+  if (!school) {
+    return next(new AppError(`School with ID ${schoolId} was not found.`, 404));
+  }
+
+  const activityToDelete = await Activity.findOne({
+    where: {
+      [Op.and]: {
+        id: activityId,
+        schoolId: schoolId,
+      },
+    },
+  });
+
+  if (!activityToDelete) {
+    return next(
+      new AppError(
+        `Activity with ID ${activityId} was not found at specified school.`,
+        404
+      )
+    );
+  }
+  await activityToDelete.destroy();
+
   res.status(204).json({});
 });
