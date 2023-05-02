@@ -19,6 +19,7 @@ router
   .route("/:id")
   .get(meetingController.getMeeting)
   .patch(
+    meetingController.checkUpdatePermsissions,
     meetingController.meetingBodyValidation,
     meetingController.deleteOldImages,
     meetingController.uploadImages,

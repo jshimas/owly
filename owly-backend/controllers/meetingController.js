@@ -146,6 +146,22 @@ exports.createMeeting = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.checkUpdatePermsissions = catchAsync(async (req, res, next) => {
+  const editor = await Participant.findOne({
+    where: {
+      userId: req.user.id,
+      meetingId: req.params.meetingId,
+      editor: true,
+    },
+  });
+
+  if (!editor) {
+    return next(new AppError(`You are not the editor of this meeting`, 401));
+  }
+
+  next();
+});
+
 exports.updateMeeting = catchAsync(async (req, res, next) => {
   const meetingBody = req.body;
   const { id: meetingId } = req.params;
