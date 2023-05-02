@@ -1,7 +1,13 @@
 const express = require("express");
+const schoolsController = require("../controllers/schoolsController");
+const authController = require("../controllers/authController");
 
 const router = express.Router();
 
 router.use("/:schoolId/activities", require("./activitiesRoutes"));
+
+router.use(authController.protect);
+
+router.route("/:id").get(schoolsController.getSchool);
 
 module.exports = router;
