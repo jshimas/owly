@@ -9,5 +9,9 @@ router.use("/:schoolId/activities", require("./activitiesRoutes"));
 router.use(authController.protect);
 
 router.route("/:id").get(schoolsController.getSchool);
+router
+  .route("/")
+  .get(schoolsController.getAllSchools)
+  .post(schoolsController.createSchool);
 
 module.exports = router;

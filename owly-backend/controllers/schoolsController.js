@@ -4,15 +4,7 @@ const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const assignSchoolLevel = require("../utils/assignSchoolLevel");
 
-exports.getSchool = catchAsync(async (req, res, next) => {
-  const { id: schoolId } = req.params;
-
-  const school = await School.findByPk(schoolId);
-
-  if (!school) {
-    return next(new AppError(`School with ID ${schoolId} was not found.`, 404));
-  }
-
+const getSchoolStats = async (schoolId) => {
   // Count school activities
   const { count: activitiesCount } = await Activity.findAndCountAll({
     where: {
@@ -42,13 +34,51 @@ exports.getSchool = catchAsync(async (req, res, next) => {
     studentsCount
   );
 
-  const schoolData = {
-    ...school.toJSON(),
+  return {
     themesQuantity: schoolThemes.length,
     activitiesQuantity: activitiesCount,
     studentsQuantity: studentsCount,
     level: schoolLevel,
   };
+};
+
+exports.getSchool = catchAsync(async (req, res, next) => {
+  const { id: schoolId } = req.params;
+
+  const school = await School.findByPk(schoolId);
+
+  if (!school) {
+    return next(new AppError(`School with ID ${schoolId} was not found.`, 404));
+  }
+
+  const schoolStats = await getSchoolStats(schoolId);
+
+  const schoolData = {
+    ...school.toJSON(),
+    ...schoolStats,
+  };
 
   res.status(200).json({ schoolData });
+});
+
+exports.getAllSchools = catchAsync(async (req, res, next) => {
+  const schools = await School.findAll();
+
+  const schoolsData = await Promise.all(
+    schools.map(async (school) => {
+      const schoolStats = await getSchoolStats(school.id);
+      return {
+        ...school.toJSON(),
+        ...schoolStats,
+      };
+    })
+  );
+
+  res.status(200).json({ schools: schoolsData });
+});
+
+exports.createSchool = catchAsync(async (req, res, next) => {
+  const newSchool = await School.create({ ...req.body });
+
+  res.status(201).json({ URI: `/schools/${newSchool.id}` });
 });
