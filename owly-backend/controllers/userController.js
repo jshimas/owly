@@ -7,10 +7,11 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 
 exports.getAllUser = catchAsync(async (req, res) => {
+  console.log(req.user);
   const users = await User.findAll({
     include: UserRole,
     attributes: {
-      include: ["id", "firstname", "lastname", "email", "points", "school"],
+      include: ["id", "firstname", "lastname", "email"],
     },
   });
 
@@ -116,4 +117,22 @@ exports.createPassword = catchAsync(async (req, res, next) => {
 
   // 4) Log the user in, send JWT
   createSendToken(user.id, 200, res);
+});
+
+exports.getUser = catchAsync(async (req, res, next) => {
+
+  const user = await User.findByPk(req.params.id, {
+    include: UserRole,
+    attributes: {
+      include: ["id", "firstname", "lastname", "email"],
+    },
+  });
+
+  if (!user) return next(new AppError("User not found", 404));
+
+  const userJSON = user.toJSON();
+  userJSON.role = userJSON.role?.role ?? null;
+
+  res.status(200).json({ userJSON });
+
 });
