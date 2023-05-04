@@ -136,3 +136,17 @@ exports.getUser = catchAsync(async (req, res, next) => {
   res.status(200).json({ userJSON });
 
 });
+
+exports.getMe = catchAsync(async (req, res, next) => {
+
+  let user = req.user;
+
+  delete user["password"]
+
+  delete user["schoolId"]
+
+  delete user["roleId"]
+
+  res.status(200).json({user: user});
+
+});
