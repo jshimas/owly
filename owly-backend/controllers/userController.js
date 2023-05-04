@@ -124,7 +124,7 @@ exports.getUser = catchAsync(async (req, res, next) => {
   const user = await User.findByPk(req.params.id, {
     include: UserRole,
     attributes: {
-      include: ["id", "firstname", "lastname", "email"],
+      include: ["id", "firstname", "lastname", "email", "school_fk"],
     },
   });
 
@@ -133,7 +133,24 @@ exports.getUser = catchAsync(async (req, res, next) => {
   const userJSON = user.toJSON();
   userJSON.role = userJSON.role?.role ?? null;
 
+  delete userJSON["schoolId"]
+  delete userJSON["password"]
+  delete userJSON["roleId"]
+
   res.status(200).json({ userJSON });
+
+});
+
+exports.updateUser = catchAsync(async (req, res, next) => {
+
+  const user = await User.findByPk(req.params.id);
+
+  if (!user) return next(new AppError(`The user with ID ${req.params.id} does not exist`, 404));
+
+  const updatedUser = await User.update(req.body, { where: { id: req.params.id } });
+
+  res.status(200).json({ updatedUser });
+
 
 });
 

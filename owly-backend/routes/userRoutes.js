@@ -19,13 +19,14 @@ router.post(
 
 router
   .route("/")
-  .get(authController.restrictTo("admin"), userController.getAllUser);
-// .post(userController.createUser);
+  .get(authController.restrictTo("admin"), userController.getAllUser)
+  .post(userController.createUser)
 
 router.route("/me")
   .get(userController.getMe);
 
 router.route("/:id")
   .get(userController.getUser)
+  .put(authController.restrictTo("admin"), userController.updateUser)
 
 module.exports = router;
