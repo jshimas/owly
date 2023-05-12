@@ -1,0 +1,89 @@
+@import url(fonts.css);
+
+@import url(colors.css);
+
+
+h1,h2,h3,h4,h5,h6{
+    font-family: Baloo;
+}
+
+body{ font-family: Rubik;}
+
+.w-90{
+    width: 90%;
+}
+
+.Background-Navbar-LandingPage{
+    background: linear-gradient(270deg, #576C54 0%, #859972 100%);
+}
+
+.backgroundPages{
+    background: url('../imgs/BackgroundNormal.png');
+    background-size: cover;
+}
+
+.card {
+    background: #576C54;
+    border: 0;
+    border-radius: 1rem !important;
+}
+
+.card-img-top{
+    border-top-left-radius: 1rem !important;   
+    border-top-right-radius: 1rem !important;
+}
+
+.Reunion{
+
+    background: #B7C1B1;
+}
+
+.Reunion:hover{
+    filter: grayscale(30%);
+}
+
+ul{
+    padding: 0;
+}
+
+li{
+    width: 100%;
+    padding-inline: 50px;
+}
+
+li:hover{
+    
+    background: linear-gradient(90deg, rgba(205, 223, 160, 0.2) 0%, rgba(60, 60, 60, 0) 100%), #3A4F41;
+}
+
+li a:hover{
+    color: #FDF8C0;
+}
+
+button svg{
+    rotate:90deg
+}
+
+li ul li {
+    
+    padding-inline: 0px;
+}
+
+
+
+
+a{
+    color:var(--WhiteC9)
+}  
+
+a:hover{
+    text-decoration: none;
+}
+
+.BackgroundLandingPage{
+    background-size:cover;
+    background: linear-gradient(0deg, rgba(86, 106, 83, 0.15), rgba(86, 106, 83, 0.15)), 
+    linear-gradient(180deg, rgba(102, 123, 94, 0.14) 0%,
+     rgba(81, 102, 80, 0.4) 72.98%, #556952 97.88%),
+      url(../imgs/BackgroundLandingpage.png);
+}
