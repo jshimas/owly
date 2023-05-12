@@ -114,6 +114,7 @@ exports.meetingBodyValidation = catchAsync(async (req, res, next) => {
   next();
 });
 
+// TODO: send email to participants
 exports.createMeeting = catchAsync(async (req, res, next) => {
   const { editorsIds } = req.body;
 

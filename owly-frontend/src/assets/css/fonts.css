@@ -1,0 +1,54 @@
+@font-face {
+	font-family: "Rubik";
+	src: url(../fonts/Rubik-VariableFont_wght.ttf) format("truetype");
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Baloo";
+	src: url(../fonts/BalooBhai2-VariableFont_wght.ttf) format("truetype");
+	font-display: swap;
+}
+
+/* @font-face {
+	font-family: Rubik;
+	src: url(../fonts/Rubik-VariableFont_wght.ttf);
+}
+
+@font-face {
+	font-family: Baloo;
+	src: url(../fonts/BalooBhai2-VariableFont_wght.ttf);
+} */
+
+.BalooFont {
+	font-family: Baloo;
+}
+
+.RubikFont {
+	font-family: Rubik;
+}
+
+h1 {
+	font-size: 40px;
+	font-weight: 600;
+}
+
+h2 {
+	font-size: 32px;
+	font-weight: 500;
+}
+
+h3 {
+	font-size: 24px;
+	font-weight: 200;
+}
+
+h4 {
+	font-size: 24px;
+	font-weight: normal;
+}
+
+p {
+	font-size: 16px;
+	font-weight: lighter;
+}

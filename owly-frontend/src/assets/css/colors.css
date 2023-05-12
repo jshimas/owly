@@ -1,0 +1,162 @@
+:root {
+  --GreenPrimary: #3A4F41;
+  --GreenSecondary: #CDDFA0;
+  --GreenSucess:#91AC58;
+  --RedDanger: #C44D56;
+  --RedDanger-Hover: #C44D56;
+  --RedDanger-Pressed: #EC515C;
+  --WhiteFFF: #FFFFFF;
+  --WhiteEEE:#EEE;
+  --WhiteC9: #C9C9C9;
+  --GreenTitle: #576C54;
+  --GreenBody: #6F8363;
+  --GreenPrimary: #3A4F41;
+  --BodyBlack1: #252525;
+  --BodyBlack2: #606060;
+}
+
+
+
+.btn-success{
+  background-color: #91AC58 ;
+  border: none;
+}
+
+.btn-success:hover{
+  background-color: #B1C588 ;
+  border: none;
+}
+
+.btn-success:focus{
+  background-color: #fff ;
+  border: none;
+}
+
+.btn-success:active{
+  background-color: #fff ;
+  border: none;
+}
+
+
+
+
+
+.btn-secondary{
+  background-color: #3A4F41 ;
+  border: none;
+}
+
+.btn-secondary:hover{
+  background-color: #233429 ;
+  border: none;
+}
+
+.btn-secondary:focus{
+  background-color: #B1C588 ;
+  border: none;
+}
+
+.btn-secondary:active{
+  background-color: #fff ;
+  border: none;
+}
+
+
+
+.btn-danger{
+  background-color: var(--RedDanger) ;
+  border: none;
+}
+
+.btn-danger:hover{
+  background-color: var(--RedDanger-Hover) ;
+  border: none;
+}
+
+.btn-danger:focus{
+  background-color: var(--RedDanger-Pressed) ;
+  border: none;
+}
+
+.btn-danger :active{
+  background-color: var(--RedDanger-Pressed) ;
+  border: none;
+}
+
+
+.btn-default{
+  background-color: var(--WhiteFFF) ;
+  border: none;
+}
+
+.btn-default:hover{
+  background-color: var(--WhiteEEE) ;
+  border: none;
+}
+
+.btn-default:focus{
+  background-color: var(--WhiteC9) ;
+  border: none;
+}
+
+.btn-default :active{
+  background-color: var(--WhiteFFF) ;
+  border: none;
+}
+
+
+
+
+
+.btn-tertiary{
+  background-color: #91AC58 ;
+  border: none;
+}
+
+.btn-tertiary:hover{
+  background-color: #B1C588 ;
+  border: none;
+}
+
+
+.badge-secondary{
+  background-color: var(--GreenSecondary);
+  color: var(--GreenPrimary)
+}
+
+
+.NavbarGreen{
+  background-color: #3A4F41;
+}
+
+.btn-primary{
+  color:#3A4F41;
+  background-color: #FFFFFF;
+  border: none;
+}
+
+.btn-primary:hover{
+  color:#3A4F41;
+  background-color: #DEDEDE ;
+  border: none;
+}
+
+.btn-primary:focus{
+  color:#3A4F41;
+  background-color: #C0C0C0;
+  border: none;
+}
+
+.btn-primary:active{
+  color:#3A4F41 !important;
+  background-color: #DEDEDE !important ;
+  border: none;
+}
+
+.text-green{
+  color:#3A4F41
+}
+
+.bg-opaquewhite{
+  background: rgba(255, 255, 255, 0.55);
+}
