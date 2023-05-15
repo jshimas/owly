@@ -167,3 +167,16 @@ exports.getMe = catchAsync(async (req, res, next) => {
   res.status(200).json({user: user});
 
 });
+
+exports.deleteUser = catchAsync(async (req, res, next) => {
+
+  const user = await User.findByPk(req.params.id);
+
+  if (!user) return next(new AppError(`The user with ID ${req.params.id} does not exist`, 404));
+
+  const deletedUser = await User.destroy({ where: { id: req.params.id } });
+
+  res.status(200).json({ deletedUser });
+
+
+});

@@ -28,5 +28,6 @@ router.route("/me")
 router.route("/:id")
   .get(userController.getUser)
   .put(authController.restrictTo("admin"), userController.updateUser)
+  .delete(authController.restrictTo("admin"), userController.deleteUser);
 
 module.exports = router;
