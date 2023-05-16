@@ -1,7 +1,6 @@
 const express = require("express");
 const userController = require("../controllers/userController");
 const authController = require("../controllers/authController");
-const meetingController = require("../controllers/meetingController");
 
 const router = express.Router();
 
@@ -20,13 +19,13 @@ router.post(
 router
   .route("/")
   .get(authController.restrictTo("admin"), userController.getAllUser)
-  .post(userController.createUser)
+  .post(userController.createUser);
 
-router.route("/me")
-  .get(userController.getMe);
+router.route("/me").get(userController.getMe);
 
-router.route("/:id")
+router
+  .route("/:id")
   .get(userController.getUser)
-  .put(authController.restrictTo("admin"), userController.updateUser)
+  .put(authController.restrictTo("admin"), userController.updateUser);
 
 module.exports = router;

@@ -12,6 +12,9 @@ router.route("/:id").get(schoolsController.getSchool);
 router
   .route("/")
   .get(schoolsController.getAllSchools)
-  .post(schoolsController.createSchool);
+  .post(
+    authController.restrictTo("admin", "coordinator"),
+    schoolsController.createSchool
+  );
 
 module.exports = router;
