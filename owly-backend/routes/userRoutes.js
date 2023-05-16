@@ -27,5 +27,7 @@ router
   .route("/:id")
   .get(userController.getUser)
   .put(authController.restrictTo("admin"), userController.updateUser);
+  .put(authController.restrictTo("admin"), userController.updateUser)
+  .delete(authController.restrictTo("admin"), userController.deleteUser);
 
 module.exports = router;
