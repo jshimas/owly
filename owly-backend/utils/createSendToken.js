@@ -14,8 +14,10 @@ module.exports = (userId, statusCode, res) => {
     ),
     httpOnly: true,
     sameSite: "none",
-    secure: true,
+    // secure: true,
   });
+
+  console.log(res);
 
   res.status(statusCode).json({ userId, token });
 };

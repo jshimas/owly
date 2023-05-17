@@ -11,7 +11,8 @@ const { sequelize } = require("./models");
 
 const app = express();
 
-app.use(cors());
+// Allow requests from all origins and include credentials (cookies)
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
