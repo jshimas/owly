@@ -40,26 +40,6 @@ import ProjectActivityView from "../views/Admin/ProjectActivityView.vue";
 //404
 import PageNotFoundView from "../views/PageNotFoundView.vue";
 
-import { useUserStore } from "../stores/User";
-
-function CheckLoggedInAdmin() {
-	// Checks if its logged in and Admin
-
-	const UserStore = useUserStore();
-
-	if (!UserStore.CheckIfLoggedUserIsAdmin()) {
-		router.push("/404");
-	}
-}
-
-function CheckLoggedIn() {
-	const UserStore = useUserStore();
-	// Checks if its logged in
-	if (!UserStore.CheckIfLoggedUserIsLogged()) {
-		router.push("/Login");
-	}
-}
-
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes: [

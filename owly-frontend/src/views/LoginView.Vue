@@ -1,71 +1,57 @@
-<template>
-	<div class="w-100 vh-100 d-flex justify-content-center align-items-center backgroundPages">
-		<b-card class="w-25">
-			<b-form @submit.prevent="Login(LoginData.email,LoginData.password)">
-				<b-form-group>
-					<b-label>Email</b-label>
-					<b-input v-model="LoginData.email" type="email"></b-input>
-				</b-form-group>
-				<b-form-group>
-					<b-label>Password</b-label>
-					<b-input v-model="LoginData.password" type="password"/>
-				</b-form-group>
-		
-				<b-button variant="primary" type="submit">Login</b-button>
-				</b-form>
-
-		</b-card>
-	</div>
-</template>
-
 <script>
 import { useUserStore } from "../stores/User";
-import { reactive } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 export default {
 	setup() {
+		const userStore = useUserStore();
+		const router = useRouter();
 
-		const userStore = useUserStore()
+		const email = ref("");
+		const password = ref("");
 
-		const Router = useRouter()
-		
-		try{
-			if(userStore.CheckIfLoggedUserIsLogged()){
-				if(userStore.CheckIfLoggedUserIsAdmin() == true){
-					Router.push("/Admin") 
-				}else{
-					Router.push("/Home") 
-				}
+		const login = async () => {
+			await userStore.login({ email: email.value, password: password.value });
+
+			console.log(userStore.error);
+			if (!userStore.error) {
+				router.push("/Home");
 			}
-	}catch{
+		};
 
-		}
-
-
-
-		const LoginData = reactive({email:"", password:""})
-
-		//useUserStore().LogIn("user@example", "ae3j0v2gu");
-
-		function Login(email,login){	
-			try{
-				userStore.LogIn(email,login);
-
-				if(userStore.CheckIfLoggedUserIsAdmin() == true){
-					Router.push("/Admin") 
-				}else{
-					Router.push("/Home") 
-				}
-			}
-			catch{
-				alert('Login failed!')
-			}
-		}
-
-		return {LoginData, Login};
+		return {
+			email,
+			password,
+			loading: userStore.loading,
+			error: userStore.error,
+			login,
+		};
 	},
 };
 </script>
+
+<template>
+	<div
+		class="w-100 vh-100 d-flex justify-content-center align-items-center backgroundPages"
+	>
+		<b-card class="w-25">
+			<b-form @submit.prevent="login">
+				<b-form-group>
+					<b-label>Email</b-label>
+					<b-input v-model="email" type="email" aria-required="true" />
+				</b-form-group>
+				<b-form-group>
+					<b-label>Password</b-label>
+					<b-input v-model="password" type="password" aria-required="true" />
+				</b-form-group>
+				<b-button variant="primary" type="submit" :disabled="loading">{{
+					loading ? "Loading..." : "Login"
+				}}</b-button>
+			</b-form>
+			<div v-if="error" class="error">{{ error }}</div>
+		</b-card>
+	</div>
+</template>
 
 <style lang="scss" scoped></style>
