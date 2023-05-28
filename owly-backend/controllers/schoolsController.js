@@ -58,7 +58,7 @@ exports.getSchool = catchAsync(async (req, res, next) => {
     ...schoolStats,
   };
 
-  res.status(200).json({ schoolData });
+  res.status(200).json({ school: schoolData });
 });
 
 exports.getAllSchools = catchAsync(async (req, res, next) => {

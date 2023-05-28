@@ -16,6 +16,7 @@ export const useProjectStore = defineStore("project", {
 				const userStore = useUserStore();
 				const schoolsApi = new SchoolsApi();
 				const res = await schoolsApi.getSchoolById(userStore.user.schoolId);
+				console.log(res.data.school);
 				this.school = res.data.school;
 			} catch (err) {
 				this.error = err;

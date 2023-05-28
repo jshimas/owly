@@ -1,15 +1,13 @@
 <template>
 	<div class="w-100 vh-100 backgroundPages overflow-auto">
-		<h1 class="m-5">Olá {{ UserStore.LoggedUserGetter.name }}</h1>
+		<h1 class="m-5">Olá {{ userStore.user.name }}</h1>
 		<div class="w-100"></div>
 
 		<h2 class="mx-5">Atividade recente em Reuniões</h2>
 		<b-card-group class="mx-5" deck>
 			<b-card
 				@click="Router.push('/Reunion/' + Message.idReunion)"
-				v-for="Message in ReunionStore.getRecentMessages(
-					UserStore.LoggedUserGetter.id
-				)"
+				v-for="Message in ReunionStore.getRecentMessages(userStore.user.id)"
 				img-src="https://placekitten.com/1000/300"
 				img-alt="Card image"
 				class="Reunion"
@@ -20,12 +18,12 @@
 					<h4>{{ ReunionStore.GetReunionById(Message.idReunion).name }}</h4>
 
 					<p>
-						<span v-if="Message.author == UserStore.LoggedUserGetter.id"
+						<span v-if="Message.author == userStore.user.id"
 							>Você enviou uma mensagem</span
 						>
 						<span v-else
 							>Você recebeu uma mensagem de
-							{{ UserStore.GetUserFunc(Message.author).name }}</span
+							{{ userStore.GetUserFunc(Message.author).name }}</span
 						>
 						{{
 							new Date(Message.date)
@@ -60,16 +58,22 @@ import { useRouter } from "vue-router";
 export default {
 	setup() {
 		const Router = useRouter();
-		const UserStore = useUserStore();
+		const userStore = useUserStore();
 		const ActivityStore = useActivityStore();
 		const MessageStore = useMessageStore();
 		const ReunionStore = useReunionStore();
 
-		if (UserStore.LoggedUserGetter?.admin == false) {
+		if (userStore.user.role !== "admin") {
 			Router.push("/Project");
 		}
 
-		return { UserStore, ActivityStore, MessageStore, ReunionStore, Router };
+		return {
+			userStore,
+			ActivityStore,
+			MessageStore,
+			ReunionStore,
+			Router,
+		};
 	},
 };
 </script>

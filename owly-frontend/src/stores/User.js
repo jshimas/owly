@@ -20,9 +20,10 @@ export const useUserStore = defineStore("user", {
 				const userApi = new UsersApi();
 				const r = await userApi.login(credentials);
 				console.log(r);
+
 				// Get the current user
 				const res = await userApi.getCurrentUser();
-				console.log(res.data);
+				console.log(res.data.user);
 				this.user = res.data.user;
 
 				// Get the user's project

@@ -14,9 +14,8 @@ export default {
 		const login = async () => {
 			await userStore.login({ email: email.value, password: password.value });
 
-			console.log(userStore.error);
 			if (!userStore.error) {
-				router.push("/Home");
+				router.push("/home");
 			}
 		};
 

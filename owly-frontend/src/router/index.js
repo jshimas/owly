@@ -50,8 +50,8 @@ const router = createRouter({
 			//beforeEnter: [CheckLoggedInAdmin],
 		},
 		{
-			path: "/Home",
-			name: "Home",
+			path: "/home",
+			name: "home",
 			component: HomeView,
 		},
 		{
@@ -60,27 +60,27 @@ const router = createRouter({
 			component: LandingPageView,
 		},
 		{
-			path: "/Login",
-			name: "Login",
+			path: "/login",
+			name: "login",
 			component: LoginView,
 		},
 		{
-			path: "/Reunions",
-			name: "Reunions",
+			path: "/meetings",
+			name: "meetings",
 			component: ReunionssView,
 		},
 		{
-			path: "/Reunion/:id",
-			name: "Reunion",
+			path: "/meetings/:id",
+			name: "meetings",
 			component: ReunionnView,
 		},
 		{
-			path: "/Reunions/CreateReunion",
-			name: "CreateReunion",
+			path: "/meetings/new",
+			name: "Create meeting",
 			component: CreateReunionView,
 		},
 		{
-			path: "/Profile/EditProfile",
+			path: "/profile/edit",
 			name: "EditProfile",
 			component: EditProfileView,
 		},
@@ -90,7 +90,7 @@ const router = createRouter({
 			component: ProfileView,
 		},
 		{
-			path: "/Project",
+			path: "/project",
 			name: "Project",
 			component: ProjectView,
 		},

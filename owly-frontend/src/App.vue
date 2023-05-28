@@ -11,42 +11,29 @@ export default {
 	setup() {
 		const route = useRoute();
 		const router = useRouter();
+		const userStore = useUserStore();
 
-		const UserStore = useUserStore();
+		const showNavbar = ref(true);
+		const RoutesThatDontNeedSideNav = ["/", "/login"];
 
-		const RoutesThatDontNeedSideNav = ["/", "/Login"];
-
-		watch(route, async (newRoute, OldRoute) => {
-			if (
-				RoutesThatDontNeedSideNav.some(
-					(routePath) => routePath == newRoute.fullPath
-				)
-			) {
-				NavState.value = false;
+		watch(route, async (newRoute, oldRoute) => {
+			if (RoutesThatDontNeedSideNav.includes(newRoute.fullPath)) {
+				showNavbar.value = false;
 			} else {
-				NavState.value = true;
-			}
-
-			if (
-				!RoutesThatDontNeedSideNav.some(
-					(routePath) => routePath == newRoute.fullPath
-				) &&
-				UserStore.LoggedUserGetter.id == undefined
-			) {
-				router.push("/Login");
+				showNavbar.value = true;
+				if (!userStore.user.id) {
+					router.push("/login");
+				}
 			}
 		});
 
-		const NavState = ref(true);
-
-		return { Navbar, NavState };
+		return { Navbar, showNavbar };
 	},
 };
 </script>
 
 <template>
-	<Navbar v-if="NavState" />
-
+	<Navbar v-if="showNavbar" />
 	<RouterView />
 </template>
 

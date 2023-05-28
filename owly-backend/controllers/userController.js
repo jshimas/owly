@@ -120,7 +120,6 @@ exports.createPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {
-
   const user = await User.findByPk(req.params.id, {
     include: UserRole,
     attributes: {
@@ -133,50 +132,57 @@ exports.getUser = catchAsync(async (req, res, next) => {
   const userJSON = user.toJSON();
   userJSON.role = userJSON.role?.role ?? null;
 
-  delete userJSON["schoolId"]
-  delete userJSON["password"]
-  delete userJSON["roleId"]
+  delete userJSON["schoolId"];
+  delete userJSON["password"];
+  delete userJSON["roleId"];
 
   res.status(200).json({ userJSON });
-
 });
 
 exports.updateUser = catchAsync(async (req, res, next) => {
-
   const user = await User.findByPk(req.params.id);
 
-  if (!user) return next(new AppError(`The user with ID ${req.params.id} does not exist`, 404));
+  if (!user)
+    return next(
+      new AppError(`The user with ID ${req.params.id} does not exist`, 404)
+    );
 
-  const updatedUser = await User.update(req.body, { where: { id: req.params.id } });
+  const updatedUser = await User.update(req.body, {
+    where: { id: req.params.id },
+  });
 
   res.status(200).json({ updatedUser });
-
-
 });
 
 exports.getMe = catchAsync(async (req, res, next) => {
-
   let user = req.user;
 
-  delete user["password"]
+  const school = await School.findByPk(user.schoolId);
 
-  delete user["schoolId"]
+  console.log(school.toJSON());
 
-  delete user["roleId"]
-
-  res.status(200).json("The user was found and successfully updated");
-
+  res.status(200).json({
+    user: {
+      id: user.id,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email,
+      role: user.role,
+      schoolName: school.name,
+      schoolId: school.id,
+    },
+  });
 });
 
 exports.deleteUser = catchAsync(async (req, res, next) => {
-
   const user = await User.findByPk(req.params.id);
 
-  if (!user) return next(new AppError(`The user with ID ${req.params.id} does not exist`, 404));
+  if (!user)
+    return next(
+      new AppError(`The user with ID ${req.params.id} does not exist`, 404)
+    );
 
   const deletedUser = await User.destroy({ where: { id: req.params.id } });
 
   res.status(200).json("The user was found and successfully deleted.");
-
-
 });
