@@ -30,7 +30,7 @@ export const useUserStore = defineStore("user", {
 				const projectStore = useProjectStore();
 				await projectStore.fetchUserProject();
 			} catch (error) {
-				this.error = error;
+				this.error = error.response.data.message;
 			} finally {
 				this.loading = false;
 			}

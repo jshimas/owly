@@ -1,6 +1,6 @@
 <script>
 import { useUserStore } from "../stores/User";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 
 export default {
@@ -10,11 +10,13 @@ export default {
 
 		const email = ref("");
 		const password = ref("");
+		const error = computed(() => userStore.error);
+		const loading = computed(() => userStore.loading);
 
 		const login = async () => {
 			await userStore.login({ email: email.value, password: password.value });
 
-			if (!userStore.error) {
+			if (userStore.user) {
 				router.push("/home");
 			}
 		};
@@ -22,8 +24,8 @@ export default {
 		return {
 			email,
 			password,
-			loading: userStore.loading,
-			error: userStore.error,
+			loading,
+			error,
 			login,
 		};
 	},
@@ -44,11 +46,11 @@ export default {
 					<b-label>Password</b-label>
 					<b-input v-model="password" type="password" aria-required="true" />
 				</b-form-group>
+				<div class="text-danger" v-if="error">{{ error }}</div>
 				<b-button variant="primary" type="submit" :disabled="loading">{{
 					loading ? "Loading..." : "Login"
 				}}</b-button>
 			</b-form>
-			<div v-if="error" class="error">{{ error }}</div>
 		</b-card>
 	</div>
 </template>

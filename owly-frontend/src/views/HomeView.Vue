@@ -1,32 +1,27 @@
 <template>
 	<div class="w-100 vh-100 backgroundPages overflow-auto">
-		<h1 class="mt-5 ml-5">Olá {{ userStore.user.firstname }}</h1>
+		<h1 class="mt-5 ml-5">Welcome, {{ userStore.user.firstname }}!</h1>
 		<div class="w-100">
 			<div class="card m-5 p-5 text-white">
 				<div>
 					<h2>
-						<span>Projeto {{ projectStore.school.projectName }}</span>
+						<span>Project: {{ projectStore.school.projectName }}</span>
 					</h2>
 					<h4 class="RubikFont">
-						<!-- <b-badge pill class="mr-2">{{
-							ThemeStore.GetThemeId(userStore.FindLoggedUserProject().theme)
-								.name
-						}}</b-badge> -->
 						<b-badge pill class="mr-2">{{ projectStore.school.name }}</b-badge>
 					</h4>
 				</div>
 
 				<div>
-					<h3>Estado Do Projeto</h3>
-					<h3>Número de Atividades</h3>
+					<h3>Number of activities</h3>
 					<p>{{ projectStore.school.activitiesQuantity }}</p>
-					<h3>Número de áreas abrangidas</h3>
+					<h3>Number of themes</h3>
 					<p>{{ projectStore.school.themesQuantity }}</p>
-					<h3>Número de colaboradores</h3>
+					<h3>Number of participants</h3>
 					<p>{{ projectStore.school.studentsQuantity }}</p>
 				</div>
-				<b-button variant="default" @click="Router.push('/Project')"
-					>Ver Projeto</b-button
+				<b-button variant="default" @click="Router.push('/project')"
+					>View project</b-button
 				>
 			</div>
 		</div>
