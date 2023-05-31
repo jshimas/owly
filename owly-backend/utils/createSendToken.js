@@ -17,5 +17,5 @@ module.exports = (userId, statusCode, res) => {
     // secure: true,
   });
 
-  res.status(statusCode).json({ userId, token });
+  res.status(statusCode).json({ userId, token, expIn: jwt.decode(token).exp });
 };
