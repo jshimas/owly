@@ -7,4 +7,11 @@ module.exports = {
     host: "pw2.joaoferreira.eu",
     dialect: "mysql",
   },
+  test: {
+    username: "root",
+    password: "root",
+    database: "owly",
+    host: "localhost",
+    dialect: "mysql",
+  },
 };
