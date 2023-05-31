@@ -17,7 +17,6 @@ module.exports = (userId, statusCode, res) => {
     // secure: true,
   });
 
-  console.log(res);
 
   res.status(statusCode).json({ userId, token });
 };

@@ -5,11 +5,18 @@ const AppError = require("../utils/AppError");
 const multer = require("multer");
 const path = require("path");
 const deleteFilesThatStartsWith = require("../utils/deleteFilesThatStartWith");
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: "dvijawvce",
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // Define the storage and file limits
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.resolve("public/images/"));
+    cb(null, path.resolve("tmp"));
   },
   filename: function (req, file, cb) {
     cb(null, `meeting-${req.params.id}-${Date.now()}-${file.originalname}`);
@@ -22,11 +29,6 @@ const limits = {
 
 // Create the Multer middleware instance
 exports.uploadImages = multer({ storage, limits }).array("images");
-
-exports.deleteOldImages = catchAsync(async (req, res, next) => {
-  await deleteFilesThatStartsWith(`meeting-${req.params.id}`);
-  next();
-});
 
 exports.getMeeting = catchAsync(async (req, res, next) => {
   const { id: meetingId } = req.params;
@@ -195,15 +197,32 @@ exports.updateMeeting = catchAsync(async (req, res, next) => {
       await Participant.bulkCreate(participantsToCreate, { transaction: t });
     }
 
-    // Creating resources
     if (req.files && req.files.length > 0) {
+      // removing old images from DB and cloudinary
+      const oldImages = await Image.findAll({
+        where: { meetingId: meetingId },
+        transaction: t,
+      });
+
+      await Promise.all(
+        oldImages.map(async (image) => {
+          await cloudinary.uploader.destroy(image.cloudinaryId);
+        })
+      );
+
       await Image.destroy({
         where: { meetingId: meetingId },
         transaction: t,
       });
 
-      const imagesToCreate = req.files.map((image) => ({
-        filepath: image.path,
+      // creating new images in DB and cloudinary
+      const cloudImages = await Promise.all(
+        req.files.map((file) => cloudinary.uploader.upload(file.path))
+      );
+
+      const imagesToCreate = cloudImages.map(({ url, public_id }) => ({
+        filepath: url,
+        cloudinaryId: public_id,
         meetingId: meetingId,
       }));
 

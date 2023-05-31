@@ -7,7 +7,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 
 exports.getAllUser = catchAsync(async (req, res) => {
-  console.log(req.user);
+
   const users = await User.findAll({
     include: UserRole,
     attributes: {
@@ -48,8 +48,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
 
   // Creating password reset token
   const token = crypto.randomBytes(32).toString("hex");
-  console.log(User);
-  console.log(PasswordReset);
+
   await PasswordReset.create({
     email: newUser.email,
     token,
@@ -159,7 +158,6 @@ exports.getMe = catchAsync(async (req, res, next) => {
 
   const school = await School.findByPk(user.schoolId);
 
-  console.log(school.toJSON());
 
   res.status(200).json({
     user: {

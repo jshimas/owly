@@ -19,13 +19,9 @@ router
   .get(activitesController.getActivity)
   .patch(
     activitesController.checkSupervisorPermission,
-    activitesController.deleteOldImages,
     activitesController.uploadImages,
     activitesController.updateActivity
   )
-  .delete(
-    activitesController.deleteOldImages,
-    activitesController.deleteActivity
-  );
+  .delete(activitesController.deleteActivity);
 
 module.exports = router;

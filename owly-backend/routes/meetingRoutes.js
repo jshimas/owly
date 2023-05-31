@@ -21,7 +21,6 @@ router
   .patch(
     meetingController.checkUpdatePermsissions,
     meetingController.meetingBodyValidation,
-    meetingController.deleteOldImages,
     meetingController.uploadImages,
     meetingController.updateMeeting
   );
