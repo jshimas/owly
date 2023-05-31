@@ -8,9 +8,9 @@ module.exports = {
     dialect: "mysql",
   },
   test: {
-    database: "owly",
     username: "root",
     password: "root",
+    database: "owly",
     host: "localhost",
     dialect: "mysql",
   },
