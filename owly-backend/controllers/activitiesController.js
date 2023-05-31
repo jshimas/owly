@@ -162,7 +162,6 @@ exports.activityBodyValidation = catchAsync(async (req, res, next) => {
       );
     }
   }
-
   next();
 });
 

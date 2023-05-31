@@ -2,7 +2,8 @@
 **/node_modules
 
 # Ignore backend environment file
-backend/.env
+backend/env
+backend/seeders
 
 # Ignore frontend build files
 frontend/dist

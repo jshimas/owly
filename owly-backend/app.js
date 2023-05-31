@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -5,9 +6,6 @@ const globalErrorHandler = require("./controllers/errorController");
 const userRoutes = require("./routes/userRoutes");
 const meetingRoutes = require("./routes/meetingRoutes");
 const schoolRoutes = require("./routes/schoolRoutes");
-
-require("dotenv").config();
-const { sequelize } = require("./models");
 
 const app = express();
 
@@ -26,16 +24,6 @@ app.all("*", (req, res, next) => {
   return res
     .status(404)
     .json({ error: `Can not find ${req.originalUrl} on this server` });
-});
-
-const host = process.env.HOST || "127.0.0.1";
-const port = process.env.PORT || 8080;
-
-app.listen(port, host, async () => {
-  console.log(`App running at http://${host}:${port}/`);
-  await sequelize.authenticate();
-  // await sequelize.sync({ force: true });
-  console.log("Database connected!");
 });
 
 app.use(globalErrorHandler);
