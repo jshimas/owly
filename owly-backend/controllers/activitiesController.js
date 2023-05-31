@@ -67,7 +67,7 @@ exports.getAllActivities = catchAsync(async (req, res, next) => {
   res.status(200).json({ activities: school.toJSON().activities });
 });
 
-exports.getActivity = catchAsync(async (req, res, next) => {
+exports.getActivity = async (req, res, next) => {
   const { schoolId, activityId } = req.params;
 
   const school = await School.findByPk(schoolId);
@@ -108,9 +108,8 @@ exports.getActivity = catchAsync(async (req, res, next) => {
       )
     );
   }
-
   res.status(200).json({ activity: activity });
-});
+};
 
 exports.checkSupervisorPermission = catchAsync(async (req, res, next) => {
   const { activityId } = req.params;
