@@ -7,4 +7,11 @@ module.exports = {
     host: "pw2.joaoferreira.eu",
     dialect: "mysql",
   },
+  test: {
+    database: "teresaterroso__pw2_g10",
+    username: "teresaterroso__pw2_g10",
+    password: "qip%ac.WSMu_",
+    host: "pw2.joaoferreira.eu",
+    dialect: "mysql",
+  },
 };
