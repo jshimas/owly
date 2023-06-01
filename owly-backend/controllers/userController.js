@@ -1,13 +1,13 @@
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const Email = require("../utils/email");
-const { User, UserRole, School, PasswordReset } = require("../models");
-const createSendToken = require("../utils/createSendToken");
+const { User, UserRole, School } = require("../models");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
+const { promisify } = require("util");
+const jwt = require("jsonwebtoken");
 
 exports.getAllUser = catchAsync(async (req, res) => {
-
   const users = await User.findAll({
     include: UserRole,
     attributes: {
@@ -46,12 +46,8 @@ exports.createUser = catchAsync(async (req, res, next) => {
     roleId: req.body.roleId,
   });
 
-  // Creating password reset token
-  const token = crypto.randomBytes(32).toString("hex");
-
-  await PasswordReset.create({
-    email: newUser.email,
-    token,
+  const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
   // Sending user token to create a new password
@@ -80,42 +76,32 @@ exports.createUser = catchAsync(async (req, res, next) => {
 });
 
 exports.createPassword = catchAsync(async (req, res, next) => {
-  const { email, password, passwordConfirm } = req.body;
+  const { password, passwordConfirm } = req.body;
 
   if (password !== passwordConfirm) {
     return next(new AppError(`Passwords do not match`, 400));
   }
 
-  // Look up the password reset token
-  const resetToken = await PasswordReset.findOne({
-    where: { email, token: req.params.token },
-    order: [["createdAt", "DESC"]],
-  });
+  // 2) Verification of the token
+  console.log(req.params.token);
+  console.log(process.env.JWT_SECRET);
+  const decoded = await promisify(jwt.verify)(
+    req.params.token,
+    process.env.JWT_SECRET
+  );
 
-  if (!resetToken) {
-    return next(new AppError(`Invalid token`, 400));
-  }
-
-  // Update the user's password
-  const user = await User.findOne({ where: { email } });
-
+  // 3) Check if user still exists
+  let user = await User.findByPk(decoded.id);
   if (!user) {
     return next(
-      new AppError(
-        `Sorry but the account with email: ${email} is no  longer valid`,
-        400
-      )
+      new AppError("The user belonging to this token no longer exists", 401)
     );
   }
 
-  user.password = await bcrypt.hash(password, 12);
+  user.password = await bcrypt.hash(password, 10);
   await user.save();
 
-  // Delete the password reset token
-  await resetToken.destroy();
-
-  // 4) Log the user in, send JWT
-  createSendToken(user.id, 200, res);
+  res.status(204).json({});
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {
@@ -157,7 +143,6 @@ exports.getMe = catchAsync(async (req, res, next) => {
   let user = req.user;
 
   const school = await School.findByPk(user.schoolId);
-
 
   res.status(200).json({
     user: {

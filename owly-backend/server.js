@@ -2,7 +2,7 @@ const { startServer } = require("./utils/serverHandler");
 const { sequelize } = require("./models");
 
 const port = process.env.PORT || 8080;
-const host = process.env.HOST || "localhost";
+const host = process.env.HOST || "127.0.0.1";
 
 (async () => {
   try {
