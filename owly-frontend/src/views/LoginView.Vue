@@ -8,8 +8,8 @@ export default {
 		const userStore = useUserStore();
 		const router = useRouter();
 
-		const email = ref("");
-		const password = ref("");
+		const email = ref("admin@owly.com");
+		const password = ref("adminadmin");
 		const emailError = ref(null);
 		const passwordError = ref(null);
 

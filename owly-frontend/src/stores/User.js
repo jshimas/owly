@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { useProjectStore } from "./Project";
 import UsersApi from "../APIs/UsersApi";
+import VueCookies from "vue-cookies";
 
 const defaultState = {
 	user: null,
@@ -19,7 +20,8 @@ export const useUserStore = defineStore("user", {
 				// Call the API to login
 				const userApi = new UsersApi();
 				const r = await userApi.login(credentials);
-				console.log(r);
+				console.log(r.data);
+				VueCookies.set("jwt",r.data.token, new Date(r.data.expIn * 1000))
 
 				// Get the current user
 				const res = await userApi.getCurrentUser();
