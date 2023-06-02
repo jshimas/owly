@@ -21,7 +21,7 @@ export const useUserStore = defineStore("user", {
 				const userApi = new UsersApi();
 				const r = await userApi.login(credentials);
 				console.log(r.data);
-				VueCookies.set("jwt",r.data.token, new Date(r.data.expIn * 1000))
+				VueCookies.set("jwt", r.data.token, new Date(r.data.expIn * 1000))
 
 				// Get the current user
 				const res = await userApi.getCurrentUser();
@@ -39,8 +39,7 @@ export const useUserStore = defineStore("user", {
 		},
 
 		logout() {
-			document.cookie =
-				"token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+			VueCookies.remove("jwt");
 			Object.assign(this, defaultState);
 		},
 	},
