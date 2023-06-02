@@ -88,8 +88,6 @@ export default {
 
 		const Router = useRouter();
 
-		console.log("AAAAA");
-
 		function logout() {
 			userStore.logout();
 			Router.push("/login");
